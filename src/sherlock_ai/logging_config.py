@@ -2,7 +2,7 @@
 import logging
 import logging.handlers
 from pathlib import Path
-from utils.helper import request_id_var
+from sherlock_ai.utils.helper import request_id_var
 
 class RequestIdFormatter(logging.Formatter):
     """Custom formatter that includes request ID in log messages"""
@@ -119,7 +119,7 @@ def setup_logging():
     services_logger.addHandler(services_handler)
 
     # Performance loggers - all performance metrics will log to performance.log
-    performance_logger = logging.getLogger("app.utils.performance")
+    performance_logger = logging.getLogger("PerformanceLogger")
     performance_logger.setLevel(logging.INFO)
     performance_logger.addHandler(performance_handler)
 
@@ -139,4 +139,4 @@ def get_logger(name: str = None):
     return logging.getLogger(name) if name else logging.getLogger(__name__)
 
 
-setup_logging()
+# setup_logging()

@@ -4,10 +4,10 @@ import functools
 import asyncio
 import logging
 from typing import Any, Callable, TypeVar, Union
-from utils.helper import get_request_id
+from sherlock_ai.utils.helper import get_request_id
 
 # Create a logger specifically for performance metrics
-logger = logging.getLogger("app.utils.performance")
+logger = logging.getLogger("PerformanceLogger")
 
 # Type variable for better type hints
 F = TypeVar("F", bound=Callable[..., Any])
