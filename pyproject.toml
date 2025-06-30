@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-system = "setuptools.build_meta"
+
+[project]
+name = "sherlock-ai"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/pranawmishra/sherlock-ai.git"
+Repository = "https://github.com/pranawmishra/sherlock-ai.git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
