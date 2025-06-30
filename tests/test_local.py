@@ -1,5 +1,4 @@
 # test_local.py
-import logging
 import time
 import asyncio
 from sherlock_ai.performance import log_performance, PerformanceTimer, log_execution_time
@@ -7,7 +6,7 @@ from sherlock_ai.logging_config import setup_logging, get_logger
 
 setup_logging()
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Test 1: Basic decorator
 @log_performance

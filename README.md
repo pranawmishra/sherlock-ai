@@ -19,10 +19,14 @@ pip install sherlock-ai
 
 ## Quick Start
 
-### Basic Performance Logging
+### Basic Setup
 
 ```python
+from sherlock_ai.logging_config import setup_logging
 from sherlock_ai.performance import log_performance
+
+# Initialize logging (call once at application startup)
+setup_logging()
 
 @log_performance
 def my_function():
@@ -30,7 +34,7 @@ def my_function():
     time.sleep(1)
     return "result"
 
-# This will log: PERFORMANCE | my_function | SUCCESS | 1.003s
+# This will log: PERFORMANCE | my_module.my_function | SUCCESS | 1.003s
 result = my_function()
 ```
 
@@ -109,14 +113,30 @@ Parameters:
 
 ## Configuration
 
-### Custom Logging Setup
+### Logging Setup
 
 ```python
-from sherlock_ai.logging_config import setup_logging
+from sherlock_ai.logging_config import setup_logging, get_logger
 
-# Configure logging for your application
-setup_logging(level="DEBUG", format="custom")
+# Initialize logging (call once at application startup)
+setup_logging()
+
+# Get a logger for your module
+logger = get_logger(__name__)
+
+# Use the logger
+logger.info("Application started")
+logger.error("Something went wrong")
 ```
+
+**Log Files Created:**
+When you call `setup_logging()`, it automatically creates a `logs/` directory with these files:
+- `app.log` - All INFO+ level logs
+- `errors.log` - Only ERROR+ level logs  
+- `api.log` - API-related logs
+- `database.log` - Database operation logs
+- `services.log` - Service operation logs
+- `performance.log` - Performance monitoring logs
 
 ### Request ID Tracking
 
@@ -125,6 +145,30 @@ from sherlock_ai.utils.helper import get_request_id
 
 # Get current request ID for distributed tracing
 request_id = get_request_id()
+```
+
+### Complete Application Example
+
+```python
+from sherlock_ai.logging_config import setup_logging, get_logger
+from sherlock_ai.performance import log_performance, PerformanceTimer
+
+# Initialize logging first
+setup_logging()
+logger = get_logger(__name__)
+
+@log_performance
+def main():
+    logger.info("Application starting")
+    
+    with PerformanceTimer("initialization"):
+        # Your initialization code
+        pass
+    
+    logger.info("Application ready")
+
+if __name__ == "__main__":
+    main()
 ```
 
 ## Log Output Format
