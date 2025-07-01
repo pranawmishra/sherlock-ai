@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Comprehensive testing improvements
 - Enhanced package metadata for PyPI publication
+- **PyPI Trusted Publishing**: Secure, token-less publishing setup using OpenID Connect (OIDC)
+- **GitHub Actions Automation**: 
+  - `publish.yml` workflow for automated PyPI publishing on releases
+  - `release.yml` workflow for automatic GitHub release creation on version changes
+- **CI/CD Pipeline**: Complete automation from version update to PyPI publication
+- **Security Improvements**: Eliminated need for API token management through trusted publishing
+
+### Changed
+- **Publishing Workflow**: Migrated from manual PyPI uploads to automated trusted publishing
+- **Release Process**: Streamlined release creation and package distribution
+
+### Infrastructure
+- Configured PyPI trusted publisher for secure authentication
+- Implemented GitHub Actions workflows for continuous deployment
+- Added automatic version detection and release tagging
+- Enhanced security through OIDC-based authentication
 
 ## [0.1.0] - 2025-01-10
 
@@ -51,4 +67,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-- **1.0.0** - Initial release with core performance monitoring and logging functionality 
+- **1.0.0** - Initial release with core performance monitoring and logging functionality
+- **1.0.1** - [Planned] Trusted publishing and automated CI/CD pipeline
