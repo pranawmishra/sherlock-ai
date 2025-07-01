@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=45", "wheel"]
-build-system = "setuptools.build_meta"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "sherlock-ai"
