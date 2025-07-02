@@ -22,8 +22,8 @@ jobs:
       id: version
       run: |
         VERSION=$(grep -Po '(?<=version = ")[^"]*' pyproject.toml)
-        echo "version=v$VERSION" >> $GITHUB_OUTPUT
-        echo "Extracted version: v$VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Extracted version: $VERSION"
     
     - name: Check if release exists
       id: check_release
