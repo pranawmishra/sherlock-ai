@@ -5,7 +5,7 @@ import asyncio
 async def main():
     print("Hello from sherlock-ai!")
     # await test_main()
-    await test_configuration_complete()
+    # await test_configuration_complete()
 
 
 if __name__ == "__main__":
