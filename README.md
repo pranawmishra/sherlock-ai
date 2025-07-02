@@ -6,9 +6,11 @@ A Python package for performance monitoring and logging utilities that helps you
 
 - 🎯 **Performance Decorators**: Easy-to-use decorators for tracking function execution times
 - ⏱️ **Context Managers**: Monitor code block execution with simple context managers
-- 🔧 **Flexible Configuration**: Customizable logging levels, minimum duration thresholds, and argument logging
+- 🔧 **Advanced Configuration System**: Complete control over logging with dataclass-based configuration
+- 🎛️ **Configuration Presets**: Pre-built setups for development, production, and testing environments
 - 🔄 **Async/Sync Support**: Works seamlessly with both synchronous and asynchronous functions
 - 📊 **Request Tracking**: Built-in request ID tracking for distributed systems
+- 📁 **Flexible Log Management**: Enable/disable log files, custom directories, and rotation settings
 - 🚀 **Zero Dependencies**: Lightweight with minimal external dependencies
 
 ## Installation
@@ -22,17 +24,25 @@ pip install sherlock-ai
 ### Basic Setup
 
 ```python
-from sherlock_ai.logging_config import setup_logging
-from sherlock_ai.performance import log_performance
+from sherlock_ai import setup_logging, get_logger, log_performance
+import time
 
 # Initialize logging (call once at application startup)
 setup_logging()
 
+# Get a logger for your module
+logger = get_logger(__name__)
+
 @log_performance
 def my_function():
     # Your code here
-    time.sleep(1)
-    return "result"
+    try:
+        time.sleep(1)
+        logger.info("Processing completed")
+        return "result"
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        raise
 
 # This will log: PERFORMANCE | my_module.my_function | SUCCESS | 1.003s
 result = my_function()
@@ -88,6 +98,114 @@ except Exception as e:
     log_execution_time("complex_operation", start_time, success=False, error=str(e))
 ```
 
+## Advanced Configuration
+
+### Configuration Presets
+
+```python
+from sherlock_ai import setup_logging, LoggingPresets
+
+# Development environment - debug level logging
+setup_logging(LoggingPresets.development())
+
+# Production environment - optimized performance
+setup_logging(LoggingPresets.production())
+
+# Minimal setup - only basic app logs
+setup_logging(LoggingPresets.minimal())
+
+# Performance monitoring only
+setup_logging(LoggingPresets.performance_only())
+```
+
+### Custom Configuration
+
+```python
+from sherlock_ai import setup_logging, LoggingConfig, LogFileConfig, LoggerConfig
+
+# Create completely custom configuration
+config = LoggingConfig(
+    logs_dir="my_app_logs",
+    console_level="DEBUG",
+    log_files={
+        "application": LogFileConfig("my_app_logs/app.log", max_bytes=50*1024*1024),
+        "errors": LogFileConfig("my_app_logs/errors.log", level="ERROR"),
+        "performance": LogFileConfig("my_app_logs/perf.log"),
+        "custom": LogFileConfig("my_app_logs/custom.log", backup_count=10)
+    },
+    loggers={
+        "api": LoggerConfig("mycompany.api", log_files=["application", "custom"]),
+        "database": LoggerConfig("mycompany.db", log_files=["application"]),
+        "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False)
+    }
+)
+
+setup_logging(config)
+```
+
+### Flexible Log Management
+
+```python
+from sherlock_ai import LoggingConfig
+
+# Start with default configuration
+config = LoggingConfig()
+
+# Disable specific log files
+config.log_files["api"].enabled = False
+config.log_files["services"].enabled = False
+
+# Change log levels
+config.log_files["performance"].level = "DEBUG"
+config.console_level = "WARNING"
+
+# Modify file sizes and rotation
+config.log_files["app"].max_bytes = 100 * 1024 * 1024  # 100MB
+config.log_files["app"].backup_count = 15
+
+# Apply the modified configuration
+setup_logging(config)
+```
+
+### Custom File Names and Directories
+
+```python
+from sherlock_ai import LoggingPresets
+
+# Use custom file names
+config = LoggingPresets.custom_files({
+    "app": "logs/application.log",
+    "performance": "logs/metrics.log",
+    "errors": "logs/error_tracking.log"
+})
+
+setup_logging(config)
+```
+
+### Environment-Specific Configuration
+
+```python
+import os
+from sherlock_ai import setup_logging, LoggingPresets, LoggingConfig
+
+# Configure based on environment
+env = os.getenv("ENVIRONMENT", "development")
+
+if env == "production":
+    setup_logging(LoggingPresets.production())
+elif env == "development":
+    setup_logging(LoggingPresets.development())
+elif env == "testing":
+    config = LoggingConfig(
+        logs_dir="test_logs",
+        console_enabled=False,  # No console output during tests
+        log_files={"test_results": LogFileConfig("test_logs/results.log")}
+    )
+    setup_logging(config)
+else:
+    setup_logging()  # Default configuration
+```
+
 ## API Reference
 
 ### `@log_performance` Decorator
@@ -111,12 +229,72 @@ Parameters:
 - `success` (bool): Whether the operation succeeded (default: True)
 - `error` (str): Error message if operation failed (default: None)
 
+### Configuration Classes
+
+#### `LoggingConfig`
+
+Main configuration class for the logging system.
+
+Parameters:
+- `logs_dir` (str): Directory for log files (default: "logs")
+- `log_format` (str): Log message format string
+- `date_format` (str): Date format for timestamps
+- `console_enabled` (bool): Enable console output (default: True)
+- `console_level` (Union[str, int]): Console log level (default: INFO)
+- `root_level` (Union[str, int]): Root logger level (default: INFO)
+- `log_files` (Dict[str, LogFileConfig]): Log file configurations
+- `loggers` (Dict[str, LoggerConfig]): Logger configurations
+- `external_loggers` (Dict[str, Union[str, int]]): External library log levels
+
+#### `LogFileConfig`
+
+Configuration for individual log files.
+
+Parameters:
+- `filename` (str): Path to the log file
+- `level` (Union[str, int]): Log level for this file (default: INFO)
+- `max_bytes` (int): Maximum file size before rotation (default: 10MB)
+- `backup_count` (int): Number of backup files to keep (default: 5)
+- `encoding` (str): File encoding (default: "utf-8")
+- `enabled` (bool): Whether this log file is enabled (default: True)
+
+#### `LoggerConfig`
+
+Configuration for individual loggers.
+
+Parameters:
+- `name` (str): Logger name
+- `level` (Union[str, int]): Logger level (default: INFO)
+- `log_files` (List[str]): List of log file names this logger writes to
+- `propagate` (bool): Whether to propagate to parent loggers (default: True)
+- `enabled` (bool): Whether this logger is enabled (default: True)
+
+### Configuration Presets
+
+#### `LoggingPresets.minimal()`
+Basic setup with only console and app log.
+
+#### `LoggingPresets.development()`
+Debug-level logging for development environment.
+
+#### `LoggingPresets.production()`
+Optimized configuration for production use.
+
+#### `LoggingPresets.performance_only()`
+Only performance monitoring logs.
+
+#### `LoggingPresets.custom_files(file_configs)`
+Custom file names for standard log types.
+
+Parameters:
+- `file_configs` (Dict[str, str]): Mapping of log type to custom filename
+
 ## Configuration
 
-### Logging Setup
+### Basic Logging Setup
 
 ```python
-from sherlock_ai.logging_config import setup_logging, get_logger
+from sherlock_ai import setup_logging, get_logger
 
 # Initialize logging (call once at application startup)
 setup_logging()
@@ -129,29 +307,50 @@ logger.info("Application started")
 logger.error("Something went wrong")
 ```
 
-**Log Files Created:**
-When you call `setup_logging()`, it automatically creates a `logs/` directory with these files:
-- `app.log` - All INFO+ level logs
-- `errors.log` - Only ERROR+ level logs  
-- `api.log` - API-related logs
-- `database.log` - Database operation logs
-- `services.log` - Service operation logs
-- `performance.log` - Performance monitoring logs
+**Default Log Files Created:**
+When you call `setup_logging()` with no arguments, it automatically creates a `logs/` directory with these files:
+- `app.log` - All INFO+ level logs from root logger
+- `errors.log` - Only ERROR+ level logs from any logger
+- `api.log` - Logs from `app.api` logger (empty unless you use this logger)
+- `database.log` - Logs from `app.core.dbConnection` logger
+- `services.log` - Logs from `app.services` logger  
+- `performance.log` - Performance monitoring logs from your `@log_performance` decorators
+
+### Using Specific Loggers
+
+```python
+import logging
+from sherlock_ai import setup_logging
+
+setup_logging()
+
+# Use specific loggers to populate their respective log files
+api_logger = logging.getLogger("app.api")
+db_logger = logging.getLogger("app.core.dbConnection")
+services_logger = logging.getLogger("app.services")
+
+# These will go to their specific log files
+api_logger.info("API request received")           # → api.log
+db_logger.info("Database query executed")        # → database.log
+services_logger.info("Service operation done")   # → services.log
+```
 
 ### Request ID Tracking
 
 ```python
-from sherlock_ai.utils.helper import get_request_id
+from sherlock_ai.utils.helper import get_request_id, set_request_id
+
+# Set a request ID for the current context
+request_id = set_request_id("req-12345")
 
 # Get current request ID for distributed tracing
-request_id = get_request_id()
+current_id = get_request_id()
 ```
 
 ### Complete Application Example
 
 ```python
-from sherlock_ai.logging_config import setup_logging, get_logger
-from sherlock_ai.performance import log_performance, PerformanceTimer
+from sherlock_ai import setup_logging, get_logger, log_performance, PerformanceTimer
 
 # Initialize logging first
 setup_logging()
@@ -188,11 +387,15 @@ PERFORMANCE | database_query | SUCCESS | 0.089s | Args: ('user123',) | Kwargs: {
 
 ## Use Cases
 
-- **API Performance Monitoring**: Track response times for your web APIs
-- **Database Query Optimization**: Monitor slow database operations
-- **Microservices Debugging**: Trace execution times across service boundaries
-- **Algorithm Benchmarking**: Compare performance of different implementations
-- **Production Monitoring**: Get insights into your application's performance characteristics
+- **API Performance Monitoring**: Track response times for your web APIs with dedicated API logging
+- **Database Query Optimization**: Monitor slow database operations with separate database logs
+- **Microservices Debugging**: Trace execution times across service boundaries with request ID tracking
+- **Algorithm Benchmarking**: Compare performance of different implementations using custom configurations
+- **Production Monitoring**: Get insights into your application's performance characteristics with production presets
+- **Environment-Specific Logging**: Use different configurations for development, testing, and production
+- **Custom Log Management**: Create application-specific log files and directory structures
+- **Compliance & Auditing**: Separate error logs and performance logs for security and compliance requirements
+- **DevOps Integration**: Configure logging for containerized environments and CI/CD pipelines
 
 ## Requirements
 

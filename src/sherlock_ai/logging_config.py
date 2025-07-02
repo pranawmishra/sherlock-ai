@@ -1,7 +1,9 @@
 # app > core > logging_config.py
+from typing import Optional
 import logging
 import logging.handlers
 from pathlib import Path
+from sherlock_ai.config.logging import LoggingConfig
 from sherlock_ai.utils.helper import request_id_var
 
 class RequestIdFormatter(logging.Formatter):
@@ -14,129 +16,79 @@ class RequestIdFormatter(logging.Formatter):
         return super().format(record)
 
 
-def setup_logging():
-    """Set up logging configuration for the application with request ID support"""
+def setup_logging(config: Optional[LoggingConfig] = None):
+    """
+    Set up logging configuration with full customization support
+
+    Args:
+        config: LoggingConfig object. If None, uses default configuration.
+    """
+    if config is None:
+        config = LoggingConfig()
 
     # Create logs directory if it doesn't exist
-    logs_dir = Path("logs")
+    # logs_dir = Path("logs")
+    logs_dir = Path(config.logs_dir)
     logs_dir.mkdir(exist_ok=True)
 
     # Configure logging format
-    log_format = "%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
+    # log_format = "%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s"
+    # date_format = "%Y-%m-%d %H:%M:%S"
 
     # Create custom formatter with request ID support
-    formatter = RequestIdFormatter(log_format, datefmt=date_format)
+    formatter = RequestIdFormatter(config.log_format, datefmt=config.date_format)
 
     # Clear existing handlers to avoid duplicates
     logging.root.handlers.clear()
 
     # 1. Console Handler - prints to terminal
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
+    if config.console_enabled:
+        console_handler = logging.StreamHandler()
+        # console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(config.console_level)
+        console_handler.setFormatter(formatter)
+        logging.root.addHandler(console_handler)
 
-    # 2. Main App Log - all logs INFO and above
-    app_handler = logging.handlers.RotatingFileHandler(
-        "logs/app.log",
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5,
-        encoding="utf-8"
-    )
-    app_handler.setLevel(logging.INFO)
-    app_handler.setFormatter(formatter)
+    # Create file handlers
+    file_handlers = {}
+    for name, file_config in config.log_files.items():
+        if file_config.enabled:
+            handler = logging.handlers.RotatingFileHandler(
+                file_config.filename,
+                maxBytes=file_config.max_bytes,
+                backupCount=file_config.backup_count,
+                encoding=file_config.encoding
+            )
+            handler.setLevel(file_config.level)
+            handler.setFormatter(formatter)
+            file_handlers[name] = handler
 
-    # 3. Error Log - only ERROR and CRITICAL logs
-    error_handler = logging.handlers.RotatingFileHandler(
-        "logs/errors.log",
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5,
-        encoding="utf-8"
-    )
-    error_handler.setLevel(logging.ERROR)
-    error_handler.setFormatter(formatter)
+    # Configure root logger
+    logging.root.setLevel(config.root_level)
 
-    # 4. API Log - specifically for API-related logs
-    api_handler = logging.handlers.RotatingFileHandler(
-        "logs/api.log",
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5,
-        encoding="utf-8"
-    )
-    api_handler.setLevel(logging.INFO)
-    api_handler.setFormatter(formatter)
+    # Add main app and error handlers to root by default
+    if "app" in file_handlers:
+        logging.root.addHandler(file_handlers["app"])
+    if "errors" in file_handlers:
+        logging.root.addHandler(file_handlers["errors"])
+    
+    # Configure specific loggers
+    for name, logger_config in config.loggers.items():
+        if logger_config.enabled:
+            logger = logging.getLogger(logger_config.name)
+            logger.setLevel(logger_config.level)
+            logger.propagate = logger_config.propagate
 
-    # 5. Database Log - specifically for database operations
-    db_handler = logging.handlers.RotatingFileHandler(
-        "logs/database.log",
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5,
-        encoding="utf-8"
-    )
-    db_handler.setLevel(logging.INFO)
-    db_handler.setFormatter(formatter)
-
-    # 6. Services Log - for all service-related operations
-    services_handler = logging.handlers.RotatingFileHandler(
-        "logs/services.log",
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5,
-        encoding="utf-8"
-    )
-    services_handler.setLevel(logging.INFO)
-    services_handler.setFormatter(formatter)
-
-    # 7. Performance Log - specifically for performance metrics
-    performance_handler = logging.handlers.RotatingFileHandler(
-        "logs/performance.log",
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5,
-        encoding="utf-8"
-    )
-    performance_handler.setLevel(logging.INFO)
-    performance_handler.setFormatter(formatter)
-
-    # Configure root logger with console, main app, and error handlers
-    logging.root.setLevel(logging.INFO)
-    logging.root.addHandler(console_handler)
-    logging.root.addHandler(app_handler)
-    logging.root.addHandler(error_handler)
-
-    # Configure specific loggers for different components
-    # API loggers - all API modules will log to api.log
-    api_logger = logging.getLogger("app.api")
-    api_logger.setLevel(logging.INFO)
-    api_logger.addHandler(api_handler)
-
-    # Database loggers - all database operations will log to database.log
-    db_logger = logging.getLogger("app.core.dbConnection")
-    db_logger.setLevel(logging.INFO)
-    db_logger.addHandler(db_handler)
-
-    # Services loggers - all services will log to services.log
-    services_logger = logging.getLogger("app.services")
-    services_logger.setLevel(logging.INFO)
-    services_logger.addHandler(services_handler)
-
-    # Performance loggers - all performance metrics will log to performance.log
-    performance_logger = logging.getLogger("PerformanceLogger")
-    performance_logger.setLevel(logging.INFO)
-    performance_logger.addHandler(performance_handler)
-
-    # Set specific log levels for external libraries
-    logging.getLogger("uvicorn").setLevel(logging.INFO)
-    logging.getLogger("fastapi").setLevel(logging.INFO)
-
-    # Prevent duplicate logs (don't propagate to parent if already handled)
-    api_logger.propagate = True  # Still propagate to get in main app.log
-    db_logger.propagate = True
-    services_logger.propagate = True
-    performance_logger.propagate = False
+            # Add specified file handlers to this logger
+            for file_name in logger_config.log_files:
+                if file_name in file_handlers:
+                    logger.addHandler(file_handlers[file_name])
+    
+    # Configure external library loggers
+    for logger_name, level in config.external_loggers.items():
+        logging.getLogger(logger_name).setLevel(level)
 
 # Helper function to get logger (optional, but clean)
 def get_logger(name: str = None):
     """Get a logger. If no name provided, uses the caller's __name__."""
     return logging.getLogger(name) if name else logging.getLogger(__name__)
-
-
-# setup_logging()
