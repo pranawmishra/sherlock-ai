@@ -1,0 +1,31 @@
+name: Create Release
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'pyproject.toml' ]  # Only trigger when version changes
+
+jobs:
+  release:
+    if: "!contains(github.event.head_commit.message, 'skip-release')"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Extract version
+      id: version
+      run: |
+        VERSION=$(grep -Po '(?<=version = ")[^"]*' pyproject.toml)
+        echo "version=v$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        release_name: Release ${{ steps.version.outputs.version }}
+        draft: false
+        prerelease: false
