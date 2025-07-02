@@ -5,6 +5,10 @@ on:
     branches: [ main ]
     paths: [ 'pyproject.toml' ]  # Only trigger when version changes
 
+permissions:
+  contents: write  # Required to create releases
+  pull-requests: read
+
 jobs:
   release:
     if: "!contains(github.event.head_commit.message, 'skip-release')"
@@ -19,13 +23,25 @@ jobs:
       run: |
         VERSION=$(grep -Po '(?<=version = ")[^"]*' pyproject.toml)
         echo "version=v$VERSION" >> $GITHUB_OUTPUT
+        echo "Extracted version: v$VERSION"
     
-    - name: Create Release
-      uses: actions/create-release@v1
+    - name: Check if release exists
+      id: check_release
+      run: |
+        if gh release view v${{ steps.version.outputs.version }} >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.version.outputs.version }}
-        release_name: Release ${{ steps.version.outputs.version }}
-        draft: false
-        prerelease: false
+    
+    - name: Create Release
+      if: steps.check_release.outputs.exists == 'false'
+      run: |
+        gh release create v${{ steps.version.outputs.version }} \
+          --title "Release v${{ steps.version.outputs.version }}" \
+          --notes "Automated release for version ${{ steps.version.outputs.version }}" \
+          --latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
