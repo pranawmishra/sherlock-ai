@@ -4,7 +4,7 @@ import logging
 import logging.handlers
 from pathlib import Path
 from sherlock_ai.config.logging import LoggingConfig
-from sherlock_ai.utils.helper import request_id_var
+from sherlock_ai.utils import request_id_var
 
 class RequestIdFormatter(logging.Formatter):
     """Custom formatter that includes request ID in log messages"""
@@ -40,6 +40,12 @@ def setup_logging(config: Optional[LoggingConfig] = None):
 
     # Clear existing handlers to avoid duplicates
     logging.root.handlers.clear()
+
+    # Clear handlers from all existing loggers
+    for logger_name in list(logging.Logger.manager.loggerDict.keys()):
+        logger = logging.getLogger(logger_name)
+        if hasattr(logger, 'handlers'):
+            logger.handlers.clear()
 
     # 1. Console Handler - prints to terminal
     if config.console_enabled:

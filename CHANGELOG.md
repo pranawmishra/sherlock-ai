@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Future enhancements and features will be listed here
+
+### Changed
+- Future changes will be documented here
+
+### Fixed
+- Future fixes will be documented here
+
+## [1.1.4] - 2025-01-02
+
+### Added
 - Comprehensive testing improvements
 - Enhanced package metadata for PyPI publication
 - **PyPI Trusted Publishing**: Secure, token-less publishing setup using OpenID Connect (OIDC)
@@ -34,16 +45,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Configurable rotation settings and backup counts
   - External library log level management
 - **Enhanced Testing Suite**: Comprehensive tests for all configuration features
+- **Logger Name Constants**: Added `LoggerNames` class for easy access to available logger names
+- **Logger Discovery**: Added `list_available_loggers()` function to programmatically discover available loggers
 
 ### Changed
 - **Publishing Workflow**: Migrated from manual PyPI uploads to automated trusted publishing
 - **Release Process**: Streamlined release creation and package distribution
 - **Logging Architecture**: Migrated to fully configurable logging system while maintaining backward compatibility
 - **Package Organization**: Improved module structure with dedicated config package
+- **File Organization**: Renamed `logging_config.py` to `logging_setup.py` for clearer purpose distinction
+- **Logger Configuration**: Improved handler cleanup to prevent duplicate log entries during FastAPI development with reload=True
 
 ### Fixed
 - **Performance Logger Configuration**: Fixed logger name mismatch between `performance.py` and logging configuration
 - **Log File Population**: Resolved issue where performance logs weren't appearing in `performance.log`
+- **Handler Duplication**: Fixed critical issue where FastAPI's reload feature caused duplicate log entries
+- **Development Environment**: Resolved logging issues in development mode with auto-reload enabled
 
 ### Infrastructure
 - Configured PyPI trusted publisher for secure authentication
@@ -93,4 +110,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **1.0.0** - Initial release with core performance monitoring and logging functionality
 - **1.0.1** - [Planned] Trusted publishing and automated CI/CD pipeline
-- **1.1.0** - Advanced logging configuration system with dataclass-based config, presets, and flexible log management 
+- **1.1.0** - Advanced logging configuration system with dataclass-based config, presets, and flexible log management
+- **1.1.4** - Enhanced logging setup with handler duplication fixes, logger name constants, and improved development experience 
