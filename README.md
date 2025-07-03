@@ -11,6 +11,9 @@ A Python package for performance monitoring and logging utilities that helps you
 - 🔄 **Async/Sync Support**: Works seamlessly with both synchronous and asynchronous functions
 - 📊 **Request Tracking**: Built-in request ID tracking for distributed systems
 - 📁 **Flexible Log Management**: Enable/disable log files, custom directories, and rotation settings
+- 🏷️ **Logger Name Constants**: Easy access to available logger names with autocomplete support
+- 🔍 **Logger Discovery**: Programmatically discover available loggers in your application
+- 🐛 **Development-Friendly**: Optimized for FastAPI auto-reload and development environments
 - 🚀 **Zero Dependencies**: Lightweight with minimal external dependencies
 
 ## Installation
@@ -46,6 +49,29 @@ def my_function():
 
 # This will log: PERFORMANCE | my_module.my_function | SUCCESS | 1.003s
 result = my_function()
+```
+
+### Using Logger Name Constants
+
+```python
+from sherlock_ai import setup_logging, get_logger, LoggerNames, list_available_loggers
+
+# Initialize logging
+setup_logging()
+
+# Use predefined logger names with autocomplete support
+api_logger = get_logger(LoggerNames.API)
+db_logger = get_logger(LoggerNames.DATABASE)
+service_logger = get_logger(LoggerNames.SERVICES)
+
+# Discover available loggers programmatically
+available_loggers = list_available_loggers()
+print(f"Available loggers: {available_loggers}")
+
+# Use the loggers
+api_logger.info("API request received")        # → logs/api.log
+db_logger.info("Database query executed")     # → logs/database.log
+service_logger.info("Service operation done") # → logs/services.log
 ```
 
 ### Advanced Configuration
@@ -206,6 +232,43 @@ else:
     setup_logging()  # Default configuration
 ```
 
+### Development with FastAPI
+
+The package is optimized for FastAPI development with auto-reload enabled:
+
+```python
+# main.py
+from sherlock_ai import setup_logging
+import uvicorn
+
+if __name__ == "__main__":
+    # Set up logging once in the main entry point
+    setup_logging()
+    
+    # FastAPI auto-reload won't cause duplicate log entries
+    uvicorn.run(
+        "myapp.api:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True  # ✅ Safe to use - no duplicate logs
+    )
+```
+
+```python
+# myapp/api.py
+from fastapi import FastAPI
+from sherlock_ai import get_logger, LoggerNames
+
+# Don't call setup_logging() here - it's already done in main.py
+app = FastAPI()
+logger = get_logger(LoggerNames.API)
+
+@app.get("/health")
+def health_check():
+    logger.info("Health check requested")
+    return {"status": "healthy"}
+```
+
 ## API Reference
 
 ### `@log_performance` Decorator
@@ -288,6 +351,35 @@ Custom file names for standard log types.
 
 Parameters:
 - `file_configs` (Dict[str, str]): Mapping of log type to custom filename
+
+### Logger Constants and Discovery
+
+#### `LoggerNames`
+Class containing constants for available logger names.
+
+Available constants:
+- `LoggerNames.API` - API logger name
+- `LoggerNames.DATABASE` - Database logger name  
+- `LoggerNames.SERVICES` - Services logger name
+- `LoggerNames.PERFORMANCE` - Performance logger name
+
+#### `list_available_loggers()`
+Function to discover all available logger names.
+
+Returns:
+- `List[str]`: List of all available logger names
+
+Example:
+```python
+from sherlock_ai import LoggerNames, list_available_loggers
+
+# Use constants with autocomplete
+logger = get_logger(LoggerNames.API)
+
+# Discover available loggers
+loggers = list_available_loggers()
+print(f"Available: {loggers}")
+```
 
 ## Configuration
 
@@ -396,10 +488,12 @@ PERFORMANCE | database_query | SUCCESS | 0.089s | Args: ('user123',) | Kwargs: {
 - **Custom Log Management**: Create application-specific log files and directory structures
 - **Compliance & Auditing**: Separate error logs and performance logs for security and compliance requirements
 - **DevOps Integration**: Configure logging for containerized environments and CI/CD pipelines
+- **FastAPI Development**: Optimized for FastAPI auto-reload with no duplicate log entries during development
+- **Logger Organization**: Use predefined logger names with autocomplete support for better code maintainability
 
 ## Requirements
 
-- Python >= 3.13
+- Python >= 3.8
 - Standard library only (no external dependencies)
 
 ## License

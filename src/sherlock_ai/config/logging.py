@@ -73,9 +73,9 @@ class LoggingConfig:
     def _get_default_loggers(self) -> Dict[str, LoggerConfig]:
         """Default loggers configuration"""
         return {
-            "api": LoggerConfig("app.api", log_files=["api"]),
-            "database": LoggerConfig("app.core.dbConnection", log_files=["database"]),
-            "services": LoggerConfig("app.services", log_files=["services"]),
+            "api": LoggerConfig("ApiLogger", log_files=["api"]),
+            "database": LoggerConfig("DatabaseLogger", log_files=["database"]),
+            "services": LoggerConfig("ServiceLogger", log_files=["services"]),
             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
         }
 
