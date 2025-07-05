@@ -16,6 +16,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.2.0] - 2025-01-02
+
+### Added
+- **Memory and Resource Monitoring**: Comprehensive monitoring system for tracking system resources
+- **Memory Monitoring Decorator**: `@monitor_memory` decorator for tracking Python memory usage with tracemalloc integration
+- **Resource Monitoring Decorator**: `@monitor_resources` decorator for tracking CPU, memory, I/O, and network usage
+- **Modular Architecture**: Reorganized monitoring functionality into focused modules for better maintainability
+- **Context Managers**: 
+  - `MemoryTracker` for monitoring memory usage in code blocks
+  - `ResourceTracker` for comprehensive resource monitoring in code blocks
+- **Advanced Resource Tracking**:
+  - CPU utilization monitoring
+  - Memory usage (RSS, VMS) tracking
+  - Disk I/O operations monitoring
+  - Network I/O operations monitoring (optional)
+  - Thread count and file handle tracking
+- **ResourceMonitor Utility**: Comprehensive utility class for capturing and analyzing resource snapshots
+- **Data Classes**: 
+  - `ResourceSnapshot` for system resource snapshots
+  - `MemorySnapshot` for memory usage snapshots
+- **Flexible Configuration Options**:
+  - Configurable minimum duration thresholds
+  - Optional I/O and network monitoring
+  - Tracemalloc integration for detailed memory tracking
+  - Customizable log levels
+
+### Changed
+- **Modular Package Structure**: Reorganized monitoring functionality into separate focused modules:
+  - `monitoring/snapshots.py` - Data classes for resource snapshots
+  - `monitoring/resource_monitor.py` - Resource monitoring utilities
+  - `monitoring/decorators.py` - Monitoring decorators
+  - `monitoring/context_managers.py` - Context managers for code blocks
+  - `monitoring/utils.py` - Logging utilities
+- **Enhanced Package Dependencies**: Added `psutil>=5.8.0` for advanced system monitoring capabilities
+- **Improved Logging**: Added `MonitoringLogger` for dedicated monitoring log output
+- **Better API Organization**: Maintained backward compatibility while providing cleaner module structure
+
+### Infrastructure
+- **Dependency Management**: Added psutil for system-level resource monitoring
+- **Type Safety**: Enhanced type hints throughout monitoring modules
+- **Documentation**: Comprehensive docstrings for all monitoring functionality
+
 ## [1.1.4] - 2025-01-02
 
 ### Added

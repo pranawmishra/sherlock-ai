@@ -5,16 +5,18 @@ A Python package for performance monitoring and logging utilities that helps you
 ## Features
 
 - 🎯 **Performance Decorators**: Easy-to-use decorators for tracking function execution times
+- 🧠 **Memory Monitoring**: Track Python memory usage with detailed heap and tracemalloc integration
+- 📊 **Resource Monitoring**: Monitor CPU, memory, I/O, and network usage during function execution
 - ⏱️ **Context Managers**: Monitor code block execution with simple context managers
 - 🔧 **Advanced Configuration System**: Complete control over logging with dataclass-based configuration
 - 🎛️ **Configuration Presets**: Pre-built setups for development, production, and testing environments
 - 🔄 **Async/Sync Support**: Works seamlessly with both synchronous and asynchronous functions
-- 📊 **Request Tracking**: Built-in request ID tracking for distributed systems
+- 📈 **Request Tracking**: Built-in request ID tracking for distributed systems
 - 📁 **Flexible Log Management**: Enable/disable log files, custom directories, and rotation settings
 - 🏷️ **Logger Name Constants**: Easy access to available logger names with autocomplete support
 - 🔍 **Logger Discovery**: Programmatically discover available loggers in your application
 - 🐛 **Development-Friendly**: Optimized for FastAPI auto-reload and development environments
-- 🚀 **Zero Dependencies**: Lightweight with minimal external dependencies
+- 🎨 **Modular Architecture**: Clean, focused modules for different monitoring aspects
 
 ## Installation
 
@@ -122,6 +124,114 @@ try:
     log_execution_time("complex_operation", start_time, success=True)
 except Exception as e:
     log_execution_time("complex_operation", start_time, success=False, error=str(e))
+```
+
+## Memory and Resource Monitoring
+
+### Memory Monitoring
+
+Track Python memory usage with detailed heap analysis:
+
+```python
+from sherlock_ai import monitor_memory, MemoryTracker
+
+# Basic memory monitoring
+@monitor_memory
+def memory_intensive_function():
+    data = [i * i for i in range(1000000)]  # Allocate memory
+    processed = sum(data)
+    return processed
+
+# Advanced memory monitoring with tracemalloc
+@monitor_memory(trace_malloc=True, min_duration=0.1)
+def critical_memory_function():
+    # Only logs if execution time >= 0.1 seconds
+    # Includes detailed Python memory tracking
+    large_dict = {i: str(i) * 100 for i in range(10000)}
+    return len(large_dict)
+
+# Memory tracking context manager
+with MemoryTracker("data_processing"):
+    # Your memory-intensive code here
+    data = load_large_dataset()
+    processed = process_data(data)
+
+# Output example:
+# MEMORY | my_module.memory_intensive_function | SUCCESS | 0.245s | Current: 45.67MB | Change: +12.34MB | Traced: 38.92MB (Peak: 52.18MB)
+```
+
+### Resource Monitoring
+
+Monitor comprehensive system resources:
+
+```python
+from sherlock_ai import monitor_resources, ResourceTracker
+
+# Basic resource monitoring
+@monitor_resources
+def resource_intensive_function():
+    # Monitors CPU, memory, and threads
+    result = sum(i * i for i in range(1000000))
+    return result
+
+# Advanced resource monitoring with I/O and network
+@monitor_resources(include_io=True, include_network=True)
+def api_call_function():
+    # Monitors CPU, memory, I/O, network, and threads
+    response = requests.get("https://api.example.com")
+    return response.json()
+
+# Resource tracking context manager
+with ResourceTracker("database_operation", include_io=True):
+    # Your resource-intensive code here
+    connection = database.connect()
+    result = connection.execute("SELECT * FROM large_table")
+    connection.close()
+
+# Output example:
+# RESOURCES | my_module.resource_intensive_function | SUCCESS | 0.156s | CPU: 25.4% | Memory: 128.45MB (+5.23MB) | Threads: 12 | I/O: R:2.34MB W:1.12MB
+```
+
+### Combined Monitoring
+
+Use both performance and resource monitoring together:
+
+```python
+from sherlock_ai import log_performance, monitor_memory, monitor_resources
+
+@log_performance
+@monitor_memory(trace_malloc=True)
+@monitor_resources(include_io=True)
+def comprehensive_monitoring():
+    # This function will be monitored for:
+    # - Execution time (performance)
+    # - Memory usage (memory)
+    # - System resources (CPU, I/O, etc.)
+    data = process_large_dataset()
+    save_to_database(data)
+    return len(data)
+```
+
+### Resource Monitor Utilities
+
+Access low-level resource monitoring utilities:
+
+```python
+from sherlock_ai import ResourceMonitor
+
+# Capture current resource snapshot
+snapshot = ResourceMonitor.capture_resources()
+if snapshot:
+    print(f"CPU: {snapshot.cpu_percent}%")
+    print(f"Memory: {ResourceMonitor.format_bytes(snapshot.memory_rss)}")
+    print(f"Threads: {snapshot.num_threads}")
+
+# Capture memory snapshot
+memory_snapshot = ResourceMonitor.capture_memory()
+print(f"Current memory: {ResourceMonitor.format_bytes(memory_snapshot.current_size)}")
+
+# Format bytes in human-readable format
+formatted = ResourceMonitor.format_bytes(1024 * 1024 * 512)  # "512.00MB"
 ```
 
 ## Advanced Configuration
@@ -291,6 +401,54 @@ Parameters:
 - `start_time` (float): Start time from `time.time()`
 - `success` (bool): Whether the operation succeeded (default: True)
 - `error` (str): Error message if operation failed (default: None)
+
+### `@monitor_memory` Decorator
+
+Monitor memory usage during function execution.
+
+Parameters:
+- `min_duration` (float): Only log if execution time >= this value in seconds (default: 0.0)
+- `log_level` (str): Log level to use (default: "INFO")
+- `trace_malloc` (bool): Use tracemalloc for detailed Python memory tracking (default: True)
+
+### `@monitor_resources` Decorator
+
+Monitor comprehensive system resources during function execution.
+
+Parameters:
+- `min_duration` (float): Only log if execution time >= this value in seconds (default: 0.0)
+- `log_level` (str): Log level to use (default: "INFO")
+- `include_io` (bool): Include I/O statistics (default: True)
+- `include_network` (bool): Include network statistics (default: False)
+
+### `MemoryTracker` Context Manager
+
+Track memory usage in code blocks.
+
+Parameters:
+- `name` (str): Name identifier for the operation
+- `min_duration` (float): Only log if execution time >= this value in seconds (default: 0.0)
+- `trace_malloc` (bool): Use tracemalloc for detailed tracking (default: True)
+
+### `ResourceTracker` Context Manager
+
+Track comprehensive resource usage in code blocks.
+
+Parameters:
+- `name` (str): Name identifier for the operation
+- `min_duration` (float): Only log if execution time >= this value in seconds (default: 0.0)
+- `include_io` (bool): Include I/O statistics (default: True)
+- `include_network` (bool): Include network statistics (default: False)
+
+### `ResourceMonitor` Utility Class
+
+Low-level resource monitoring utilities.
+
+Static Methods:
+- `capture_resources()`: Capture current system resource snapshot
+- `capture_memory()`: Capture current memory usage snapshot
+- `format_bytes(bytes_val)`: Format bytes in human-readable format
+- `calculate_resource_diff(start, end)`: Calculate differences between snapshots
 
 ### Configuration Classes
 
@@ -464,37 +622,98 @@ if __name__ == "__main__":
 
 ## Log Output Format
 
-The package produces structured log messages in the following format:
+The package produces structured log messages with the following format:
 
+```
+{timestamp} - {request_id} - {logger_name} - {log_level} - {message_content}
+```
+
+Where:
+- `{timestamp}`: Date and time of the log entry
+- `{request_id}`: Request ID set by `set_request_id()` (shows `-` if not set)
+- `{logger_name}`: Name of the logger (e.g., PerformanceLogger, MonitoringLogger)
+- `{log_level}`: Log level (INFO, ERROR, DEBUG, etc.)
+- `{message_content}`: The actual log message content
+
+### Performance Logs
+**Message Content Format:**
 ```
 PERFORMANCE | {function_name} | {STATUS} | {execution_time}s | {additional_info}
 ```
 
-Examples:
+**Examples:**
 ```
-PERFORMANCE | my_module.my_function | SUCCESS | 0.123s
-PERFORMANCE | api_call | ERROR | 2.456s | Connection timeout
-PERFORMANCE | database_query | SUCCESS | 0.089s | Args: ('user123',) | Kwargs: {'limit': 10}
+2025-07-05 19:19:11 - 07ca74ed - PerformanceLogger - INFO - PERFORMANCE | tests.test_fastapi.health_check | SUCCESS | 0.262s
+2025-07-05 21:13:03 - 2c4774b0 - PerformanceLogger - INFO - PERFORMANCE | my_module.api_call | ERROR | 2.456s | Connection timeout
+2025-07-05 19:20:15 - - - PerformanceLogger - INFO - PERFORMANCE | database_query | SUCCESS | 0.089s | Args: ('user123',) | Kwargs: {'limit': 10}
+```
+
+### Memory Monitoring Logs
+**Message Content Format:**
+```
+MEMORY | {function_name} | {STATUS} | {execution_time}s | Current: {current_memory} | Change: {memory_change} | Traced: {traced_memory}
+```
+
+**Examples:**
+```
+2025-07-05 19:19:11 - 07ca74ed - MonitoringLogger - INFO - MEMORY | tests.test_fastapi.health_check | SUCCESS | 0.261s | Current: 57.66MB | Change: +1.64MB | Traced: 24.33KB (Peak: 30.33KB)
+2025-07-05 21:15:22 - - - MonitoringLogger - INFO - MEMORY | data_processor | SUCCESS | 0.245s | Current: 45.67MB | Change: +12.34MB
+```
+
+### Resource Monitoring Logs
+**Message Content Format:**
+```
+RESOURCES | {function_name} | {STATUS} | {execution_time}s | CPU: {cpu_percent}% | Memory: {memory_usage} | Threads: {thread_count} | I/O: R:{read_bytes} W:{write_bytes}
+```
+
+**Examples:**
+```
+2025-07-05 19:19:11 - 07ca74ed - MonitoringLogger - INFO - RESOURCES | tests.test_fastapi.health_check | SUCCESS | 0.144s | CPU: 59.3% | Memory: 57.66MB (+1.63MB) | Threads: 9 | I/O: R:0.00B W:414.00B
+2025-07-05 21:13:03 - 2c4774b0 - MonitoringLogger - INFO - RESOURCES | api_handler | SUCCESS | 0.156s | CPU: 25.4% | Memory: 128.45MB (+5.23MB) | Threads: 12 | I/O: R:2.34MB W:1.12MB
+2025-07-05 19:25:30 - - - MonitoringLogger - INFO - RESOURCES | database_query | SUCCESS | 0.089s | CPU: 15.2% | Memory: 95.67MB (+0.12MB) | Threads: 8
+```
+
+### Request ID Usage
+
+To include request IDs in your logs, use the `set_request_id()` function:
+
+```python
+from sherlock_ai import set_request_id, get_request_id
+
+# Set a request ID for the current context
+request_id = set_request_id("req-12345")  # Custom ID
+# or
+request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
+
+# Now all logs will include this request ID
+# When request ID is set: "2025-07-05 19:19:11 - 07ca74ed - ..."
+# When request ID is not set: "2025-07-05 19:19:11 - - - ..."
 ```
 
 ## Use Cases
 
 - **API Performance Monitoring**: Track response times for your web APIs with dedicated API logging
+- **Memory Leak Detection**: Monitor memory usage patterns to identify potential memory leaks
+- **Resource Optimization**: Analyze CPU, memory, and I/O usage to optimize application performance
 - **Database Query Optimization**: Monitor slow database operations with separate database logs
 - **Microservices Debugging**: Trace execution times across service boundaries with request ID tracking
 - **Algorithm Benchmarking**: Compare performance of different implementations using custom configurations
 - **Production Monitoring**: Get insights into your application's performance characteristics with production presets
+- **Memory-Intensive Applications**: Monitor memory usage in data processing, ML model training, and large dataset operations
+- **System Resource Analysis**: Track resource consumption patterns for capacity planning and scaling decisions
 - **Environment-Specific Logging**: Use different configurations for development, testing, and production
 - **Custom Log Management**: Create application-specific log files and directory structures
 - **Compliance & Auditing**: Separate error logs and performance logs for security and compliance requirements
 - **DevOps Integration**: Configure logging for containerized environments and CI/CD pipelines
 - **FastAPI Development**: Optimized for FastAPI auto-reload with no duplicate log entries during development
 - **Logger Organization**: Use predefined logger names with autocomplete support for better code maintainability
+- **Performance Profiling**: Comprehensive monitoring for identifying bottlenecks in CPU, memory, and I/O operations
 
 ## Requirements
 
 - Python >= 3.8
-- Standard library only (no external dependencies)
+- **psutil** >= 5.8.0 (for memory and resource monitoring)
+- Standard library for basic performance monitoring
 
 ## License
 

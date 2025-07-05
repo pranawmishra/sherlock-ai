@@ -1,9 +1,10 @@
 from contextvars import ContextVar
 import uuid
+from typing import Optional
 
 request_id_var: ContextVar[str] = ContextVar("request_id", default="")
 
-def set_request_id(req_id: str = None) -> str:
+def set_request_id(req_id: Optional[str] = None) -> str:
     """
     Set request ID for current context
     Args:
