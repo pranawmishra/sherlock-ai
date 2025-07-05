@@ -68,6 +68,7 @@ class LoggingConfig:
             "database": LogFileConfig("logs/database.log"),
             "services": LogFileConfig("logs/services.log"),
             "performance": LogFileConfig("logs/performance.log"),
+            "monitoring": LogFileConfig("logs/monitoring.log"),
         }
 
     def _get_default_loggers(self) -> Dict[str, LoggerConfig]:
@@ -77,6 +78,7 @@ class LoggingConfig:
             "database": LoggerConfig("DatabaseLogger", log_files=["database"]),
             "services": LoggerConfig("ServiceLogger", log_files=["services"]),
             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
+            "monitoring": LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False),
         }
 
     def _get_default_external_loggers(self) -> Dict[str, Union[str, int]]:
