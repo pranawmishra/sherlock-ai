@@ -4,11 +4,11 @@ Test suite for the enhanced logging configuration system
 """
 import time
 import asyncio
-from sherlock_ai import setup_logging, get_logger, LoggingConfig, LoggingPresets, LogFileConfig, LoggerConfig
+from sherlock_ai import get_logger, LoggingConfig, LoggingPresets, LogFileConfig, LoggerConfig, SherlockAI
 from sherlock_ai.performance import log_performance
 
 # Initialize logging for this test
-setup_logging()
+logging_manager = SherlockAI.get_instance()
 logger = get_logger(__name__)
 
 

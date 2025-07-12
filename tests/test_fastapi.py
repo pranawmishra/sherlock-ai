@@ -8,10 +8,10 @@ logger = get_logger("ApiLogger")
 def create_app():
     app = FastAPI()
 
+    @app.middleware("http")
     @log_performance
     @monitor_memory
     @monitor_resources
-    @app.middleware("http")
     async def request_id_middleware(request: Request, call_next):
         # request_id = str(uuid.uuid4())
         request_id = set_request_id()

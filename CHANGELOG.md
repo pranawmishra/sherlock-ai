@@ -16,6 +16,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.3.0] - 2025-01-12
+
+### Added
+- **Class-Based Architecture**: New `SherlockAI` class for advanced logging management with instance-based configuration
+- **Runtime Reconfiguration**: Ability to change logging settings without application restart using `reconfigure()` method
+- **Context Manager Support**: Use `with SherlockAI()` syntax for automatic resource cleanup and temporary configurations
+- **Singleton Pattern**: `SherlockAI.get_instance()` for shared application-wide logging instances
+- **Logging Introspection**: New `get_logging_stats()` function to query current logging configuration and status
+- **Enhanced Configuration Access**: New `get_current_config()` function to retrieve active logging configuration
+- **Resource Management**: Proper cleanup of handlers and loggers with `cleanup()` method
+- **Handler Information**: `get_handler_info()` method to inspect current logging handlers
+- **Logger Information**: `get_logger_info()` method to inspect configured loggers
+- **Framework Foundation**: Prepared architecture for future multi-tenant and database storage features
+- **Instance Management**: Class-level instance tracking for future multi-tenant support
+
+### Changed
+- **Backward Compatibility**: All existing `sherlock_ai()` function calls continue to work unchanged
+- **Function Implementation**: `sherlock_ai()` function now acts as a wrapper around the new class-based system
+- **Configuration Storage**: Improved configuration storage and retrieval mechanism
+- **Resource Cleanup**: Enhanced resource management with proper handler cleanup
+- **API Consistency**: Maintained all existing APIs while adding new class-based functionality
+
+### Improved
+- **FastAPI Integration**: Better decorator order handling for FastAPI middleware
+- **Memory Management**: Improved memory usage through better resource cleanup
+- **Error Handling**: Enhanced error handling in configuration and setup processes
+- **Performance**: Optimized initialization and configuration processes
+- **Documentation**: Added comprehensive examples for both function and class usage patterns
+
+### Fixed
+- **Handler Duplication**: Improved prevention of duplicate log handlers during reconfiguration
+- **Resource Leaks**: Fixed potential resource leaks through proper cleanup mechanisms
+- **Configuration Persistence**: Fixed issues with configuration state management
+
+### Infrastructure
+- **Preparation for Multi-Tenant**: Laid groundwork for future multi-tenant logging support
+- **Database Ready**: Prepared architecture for future database storage integration
+- **Extensible Design**: Created extensible class structure for future framework features
+
 ## [1.2.0] - 2025-01-02
 
 ### Added

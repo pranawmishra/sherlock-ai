@@ -2,13 +2,13 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 # __author__ = "Pranaw Mishra"
 # __email__ = "pranawmishra73@gmail.com"
 
 # Import main components for easy access
 from .performance import log_performance, PerformanceTimer
-from .logging_setup import setup_logging, get_logger
+from .logging_setup import sherlock_ai, get_logger, get_logging_stats, get_current_config, SherlockAI
 from .config import LoggingConfig, LoggingPresets, LogFileConfig, LoggerConfig
 from .utils import set_request_id, get_request_id, clear_request_id
 from .monitoring import (
@@ -52,8 +52,11 @@ __all__ = [
     "ResourceMonitor",
 
     # Logging Configuration
-    "setup_logging",
+    "SherlockAI",
+    "sherlock_ai",
     "get_logger",
+    "get_logging_stats",
+    "get_current_config",
     "LoggingConfig",
     "LoggingPresets",
     "LogFileConfig",
