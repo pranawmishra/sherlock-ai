@@ -17,6 +17,10 @@ A Python package for performance monitoring and logging utilities that helps you
 - 🔍 **Logger Discovery**: Programmatically discover available loggers in your application
 - 🐛 **Development-Friendly**: Optimized for FastAPI auto-reload and development environments
 - 🎨 **Modular Architecture**: Clean, focused modules for different monitoring aspects
+- 🏗️ **Class-Based Architecture**: Advanced `SherlockAI` class for instance-based logging management
+- 🔄 **Runtime Reconfiguration**: Change logging settings without application restart
+- 🧹 **Resource Management**: Automatic cleanup and context manager support
+- 🔍 **Logging Introspection**: Query current logging configuration and statistics
 
 ## Installation
 
@@ -29,11 +33,11 @@ pip install sherlock-ai
 ### Basic Setup
 
 ```python
-from sherlock_ai import setup_logging, get_logger, log_performance
+from sherlock_ai import sherlock_ai, get_logger, log_performance
 import time
 
 # Initialize logging (call once at application startup)
-setup_logging()
+sherlock_ai()
 
 # Get a logger for your module
 logger = get_logger(__name__)
@@ -53,13 +57,41 @@ def my_function():
 result = my_function()
 ```
 
+### Class-Based Setup (Advanced)
+
+```python
+from sherlock_ai import SherlockAI, get_logger, log_performance
+
+# Initialize with class-based approach
+logger_manager = SherlockAI()
+logger_manager.setup()
+
+# Get a logger for your module
+logger = get_logger(__name__)
+
+@log_performance
+def my_function():
+    logger.info("Processing with class-based setup")
+    return "result"
+
+# Later, reconfigure without restart
+from sherlock_ai import LoggingPresets
+logger_manager.reconfigure(LoggingPresets.development())
+
+# Or use as context manager
+with SherlockAI() as temp_logger:
+    # Temporary logging configuration
+    logger.info("This uses temporary configuration")
+# Automatically cleaned up
+```
+
 ### Using Logger Name Constants
 
 ```python
-from sherlock_ai import setup_logging, get_logger, LoggerNames, list_available_loggers
+from sherlock_ai import sherlock_ai, get_logger, LoggerNames, list_available_loggers
 
 # Initialize logging
-setup_logging()
+sherlock_ai()
 
 # Use predefined logger names with autocomplete support
 api_logger = get_logger(LoggerNames.API)
@@ -74,6 +106,26 @@ print(f"Available loggers: {available_loggers}")
 api_logger.info("API request received")        # → logs/api.log
 db_logger.info("Database query executed")     # → logs/database.log
 service_logger.info("Service operation done") # → logs/services.log
+```
+
+### Logging Introspection
+
+```python
+from sherlock_ai import sherlock_ai, get_logging_stats, get_current_config
+
+# Initialize logging
+sherlock_ai()
+
+# Get current logging statistics
+stats = get_logging_stats()
+print(f"Logging configured: {stats['is_configured']}")
+print(f"Active handlers: {stats['handlers']}")
+print(f"Log directory: {stats['logs_dir']}")
+
+# Get current configuration
+config = get_current_config()
+print(f"Console enabled: {config.console_enabled}")
+print(f"Log files: {list(config.log_files.keys())}")
 ```
 
 ### Advanced Configuration
@@ -239,25 +291,25 @@ formatted = ResourceMonitor.format_bytes(1024 * 1024 * 512)  # "512.00MB"
 ### Configuration Presets
 
 ```python
-from sherlock_ai import setup_logging, LoggingPresets
+from sherlock_ai import sherlock_ai, LoggingPresets
 
 # Development environment - debug level logging
-setup_logging(LoggingPresets.development())
+sherlock_ai(LoggingPresets.development())
 
 # Production environment - optimized performance
-setup_logging(LoggingPresets.production())
+sherlock_ai(LoggingPresets.production())
 
 # Minimal setup - only basic app logs
-setup_logging(LoggingPresets.minimal())
+sherlock_ai(LoggingPresets.minimal())
 
 # Performance monitoring only
-setup_logging(LoggingPresets.performance_only())
+sherlock_ai(LoggingPresets.performance_only())
 ```
 
 ### Custom Configuration
 
 ```python
-from sherlock_ai import setup_logging, LoggingConfig, LogFileConfig, LoggerConfig
+from sherlock_ai import sherlock_ai, LoggingConfig, LogFileConfig, LoggerConfig
 
 # Create completely custom configuration
 config = LoggingConfig(
@@ -276,13 +328,13 @@ config = LoggingConfig(
     }
 )
 
-setup_logging(config)
+sherlock_ai(config)
 ```
 
 ### Flexible Log Management
 
 ```python
-from sherlock_ai import LoggingConfig
+from sherlock_ai import LoggingConfig, sherlock_ai
 
 # Start with default configuration
 config = LoggingConfig()
@@ -300,13 +352,13 @@ config.log_files["app"].max_bytes = 100 * 1024 * 1024  # 100MB
 config.log_files["app"].backup_count = 15
 
 # Apply the modified configuration
-setup_logging(config)
+sherlock_ai(config)
 ```
 
 ### Custom File Names and Directories
 
 ```python
-from sherlock_ai import LoggingPresets
+from sherlock_ai import LoggingPresets, sherlock_ai
 
 # Use custom file names
 config = LoggingPresets.custom_files({
@@ -315,31 +367,31 @@ config = LoggingPresets.custom_files({
     "errors": "logs/error_tracking.log"
 })
 
-setup_logging(config)
+sherlock_ai(config)
 ```
 
 ### Environment-Specific Configuration
 
 ```python
 import os
-from sherlock_ai import setup_logging, LoggingPresets, LoggingConfig
+from sherlock_ai import sherlock_ai, LoggingPresets, LoggingConfig
 
 # Configure based on environment
 env = os.getenv("ENVIRONMENT", "development")
 
 if env == "production":
-    setup_logging(LoggingPresets.production())
+    sherlock_ai(LoggingPresets.production())
 elif env == "development":
-    setup_logging(LoggingPresets.development())
+    sherlock_ai(LoggingPresets.development())
 elif env == "testing":
     config = LoggingConfig(
         logs_dir="test_logs",
         console_enabled=False,  # No console output during tests
         log_files={"test_results": LogFileConfig("test_logs/results.log")}
     )
-    setup_logging(config)
+    sherlock_ai(config)
 else:
-    setup_logging()  # Default configuration
+    sherlock_ai()  # Default configuration
 ```
 
 ### Development with FastAPI
@@ -348,12 +400,12 @@ The package is optimized for FastAPI development with auto-reload enabled:
 
 ```python
 # main.py
-from sherlock_ai import setup_logging
+from sherlock_ai import sherlock_ai
 import uvicorn
 
 if __name__ == "__main__":
     # Set up logging once in the main entry point
-    setup_logging()
+    sherlock_ai()
     
     # FastAPI auto-reload won't cause duplicate log entries
     uvicorn.run(
@@ -366,10 +418,10 @@ if __name__ == "__main__":
 
 ```python
 # myapp/api.py
-from fastapi import FastAPI
-from sherlock_ai import get_logger, LoggerNames
+from fastapi import FastAPI, Request
+from sherlock_ai import get_logger, LoggerNames, log_performance, monitor_memory
 
-# Don't call setup_logging() here - it's already done in main.py
+# Don't call sherlock_ai() here - it's already done in main.py
 app = FastAPI()
 logger = get_logger(LoggerNames.API)
 
@@ -377,7 +429,38 @@ logger = get_logger(LoggerNames.API)
 def health_check():
     logger.info("Health check requested")
     return {"status": "healthy"}
+
+# ⚠️ IMPORTANT: Decorator order matters for FastAPI middleware!
+@app.middleware("http")  # ✅ Framework decorators must be outermost
+@log_performance        # ✅ Then monitoring decorators
+@monitor_memory         # ✅ Then other monitoring decorators
+async def request_middleware(request: Request, call_next):
+    # This will work correctly and log to performance.log
+    response = await call_next(request)
+    return response
 ```
+
+### FastAPI Decorator Order ⚠️
+
+**Critical**: Always put FastAPI decorators outermost:
+
+```python
+# ✅ CORRECT - Framework decorator first
+@app.middleware("http")
+@log_performance
+@monitor_memory
+async def middleware_function(request, call_next):
+    pass
+
+# ❌ WRONG - Monitoring decorators interfere with FastAPI
+@log_performance
+@monitor_memory
+@app.middleware("http")  # FastAPI can't find this!
+async def middleware_function(request, call_next):
+    pass
+```
+
+This applies to all framework decorators (`@app.route`, `@app.middleware`, etc.).
 
 ## API Reference
 
@@ -539,15 +622,73 @@ loggers = list_available_loggers()
 print(f"Available: {loggers}")
 ```
 
+### Class-Based API
+
+#### `SherlockAI` Class
+
+Advanced logging management with instance-based configuration.
+
+**Constructor Parameters:**
+- `config` (Optional[LoggingConfig]): Configuration object. If None, uses default configuration.
+
+**Methods:**
+- `setup()`: Set up logging configuration. Returns applied LoggingConfig.
+- `reconfigure(new_config)`: Change configuration without restart.
+- `cleanup()`: Clean up handlers and resources.
+- `get_stats()`: Get current logging statistics.
+- `get_handler_info()`: Get information about current handlers.
+- `get_logger_info()`: Get information about configured loggers.
+
+**Class Methods:**
+- `SherlockAI.get_instance()`: Get or create singleton instance.
+
+**Context Manager Support:**
+```python
+with SherlockAI(config) as logger_manager:
+    # Temporary logging configuration
+    pass
+# Automatically cleaned up
+```
+
+#### `get_logging_stats()`
+Get current logging statistics from default instance.
+
+Returns:
+- `Dict[str, Any]`: Dictionary containing logging statistics
+
+Example:
+```python
+from sherlock_ai import get_logging_stats
+
+stats = get_logging_stats()
+print(f"Configured: {stats['is_configured']}")
+print(f"Handlers: {stats['handlers']}")
+```
+
+#### `get_current_config()`
+Get current logging configuration from default instance.
+
+Returns:
+- `Optional[LoggingConfig]`: Current configuration if available
+
+Example:
+```python
+from sherlock_ai import get_current_config
+
+config = get_current_config()
+if config:
+    print(f"Console enabled: {config.console_enabled}")
+```
+
 ## Configuration
 
 ### Basic Logging Setup
 
 ```python
-from sherlock_ai import setup_logging, get_logger
+from sherlock_ai import sherlock_ai, get_logger
 
 # Initialize logging (call once at application startup)
-setup_logging()
+sherlock_ai()
 
 # Get a logger for your module
 logger = get_logger(__name__)
@@ -558,7 +699,7 @@ logger.error("Something went wrong")
 ```
 
 **Default Log Files Created:**
-When you call `setup_logging()` with no arguments, it automatically creates a `logs/` directory with these files:
+When you call `sherlock_ai()` with no arguments, it automatically creates a `logs/` directory with these files:
 - `app.log` - All INFO+ level logs from root logger
 - `errors.log` - Only ERROR+ level logs from any logger
 - `api.log` - Logs from `app.api` logger (empty unless you use this logger)
@@ -570,9 +711,9 @@ When you call `setup_logging()` with no arguments, it automatically creates a `l
 
 ```python
 import logging
-from sherlock_ai import setup_logging
+from sherlock_ai import sherlock_ai
 
-setup_logging()
+sherlock_ai()
 
 # Use specific loggers to populate their respective log files
 api_logger = logging.getLogger("app.api")
@@ -600,10 +741,10 @@ current_id = get_request_id()
 ### Complete Application Example
 
 ```python
-from sherlock_ai import setup_logging, get_logger, log_performance, PerformanceTimer
+from sherlock_ai import sherlock_ai, get_logger, log_performance, PerformanceTimer
 
 # Initialize logging first
-setup_logging()
+sherlock_ai()
 logger = get_logger(__name__)
 
 @log_performance
