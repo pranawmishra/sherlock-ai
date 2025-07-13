@@ -26,8 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Logging Introspection**: New `get_logging_stats()` function to query current logging configuration and status
 - **Enhanced Configuration Access**: New `get_current_config()` function to retrieve active logging configuration
 - **Resource Management**: Proper cleanup of handlers and loggers with `cleanup()` method
-- **Handler Information**: `get_handler_info()` method to inspect current logging handlers
-- **Logger Information**: `get_logger_info()` method to inspect configured loggers
+<!-- - **Handler Information**: `get_handler_info()` method to inspect current logging handlers -->
+<!-- - **Logger Information**: `get_logger_info()` method to inspect configured loggers -->
 - **Framework Foundation**: Prepared architecture for future multi-tenant and database storage features
 - **Instance Management**: Class-level instance tracking for future multi-tenant support
 

@@ -636,8 +636,8 @@ Advanced logging management with instance-based configuration.
 - `reconfigure(new_config)`: Change configuration without restart.
 - `cleanup()`: Clean up handlers and resources.
 - `get_stats()`: Get current logging statistics.
-- `get_handler_info()`: Get information about current handlers.
-- `get_logger_info()`: Get information about configured loggers.
+<!-- - `get_handler_info()`: Get information about current handlers. -->
+<!-- - `get_logger_info()`: Get information about configured loggers. -->
 
 **Class Methods:**
 - `SherlockAI.get_instance()`: Get or create singleton instance.
