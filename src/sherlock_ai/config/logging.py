@@ -31,6 +31,7 @@ class LoggingConfig:
     # Format settings
     log_format: str = "%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s"
     date_format: str = "%Y-%m-%d %H:%M:%S"
+    log_format_type: str = "log"
     
     # Console settings
     console_enabled: bool = True
@@ -61,14 +62,17 @@ class LoggingConfig:
 
     def _get_default_log_files(self) -> Dict[str, LogFileConfig]:
         """Default log files configuration"""
+
+        # Choose file extension based on format type
+        file_extension = ".json" if self.log_format_type == "json" else ".log"
         return {
-            "app": LogFileConfig("logs/app.log"),
-            "errors": LogFileConfig("logs/errors.log", level=logging.ERROR),
-            "api": LogFileConfig("logs/api.log"),
-            "database": LogFileConfig("logs/database.log"),
-            "services": LogFileConfig("logs/services.log"),
-            "performance": LogFileConfig("logs/performance.log"),
-            "monitoring": LogFileConfig("logs/monitoring.log"),
+            "app": LogFileConfig(f"{self.logs_dir}/app{file_extension}"),
+            "errors": LogFileConfig(f"{self.logs_dir}/errors{file_extension}", level=logging.ERROR),
+            "api": LogFileConfig(f"{self.logs_dir}/api{file_extension}"),
+            "database": LogFileConfig(f"{self.logs_dir}/database{file_extension}"),
+            "services": LogFileConfig(f"{self.logs_dir}/services{file_extension}"),
+            "performance": LogFileConfig(f"{self.logs_dir}/performance{file_extension}"),
+            "monitoring": LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}"),
         }
 
     def _get_default_loggers(self) -> Dict[str, LoggerConfig]:

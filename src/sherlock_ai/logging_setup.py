@@ -2,6 +2,8 @@
 from typing import Optional, Dict, Any
 import logging
 import logging.handlers
+import json
+import traceback
 from pathlib import Path
 from sherlock_ai.config.logging import LoggingConfig
 from sherlock_ai.utils import request_id_var
@@ -17,6 +19,34 @@ class RequestIdFormatter(logging.Formatter):
         # get current request ID from context
         record.request_id = request_id_var.get("") or "-"
         return super().format(record)
+
+class JSONFormatter(logging.Formatter):
+    """Custom formatter that includes request ID in log messages"""
+
+    def format(self, record):
+        """Add request ID to log message"""
+        request_id = request_id_var.get("") or "-"
+        log_data = {
+            "timestamp": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "request_id": request_id
+        }
+
+        # Add exception details if available
+        if record.exc_info:
+            log_data["exception"] = {
+                "type": record.exc_info[0].__name__,
+                "message": str(record.exc_info[1]),
+                "traceback": "".join(traceback.format_exception(*record.exc_info))
+            }
+
+        # Add extra fields if available
+        if hasattr(record, "extra_fields"):
+            log_data.update(record.extra_fields)
+
+        return json.dumps(log_data, ensure_ascii=False, separators=(',', ':'))
 
 class SherlockAI:
     """
@@ -38,19 +68,31 @@ class SherlockAI:
         self.handlers: Dict[str, logging.Handler] = {}
         self.formatter: Optional[RequestIdFormatter] = None
         
-    def setup(self) -> LoggingConfig:
+    def setup(self, format_type: str = "log") -> LoggingConfig:
         """
         Set up logging configuration
+
+        Args:
+            format_type: "log" for standard format, "json" for JSON format
         
         Returns:
             The configuration that was applied
         """
+        # Update format type in config
+        self.config.log_format_type = format_type
+
+        # Regenerate log files based on new format type
+        self.config.log_files = self.config._get_default_log_files()
+
         # Create logs directory if it doesn't exist
         logs_dir = Path(self.config.logs_dir)
         logs_dir.mkdir(exist_ok=True)
 
-        # Create custom formatter with request ID support
-        self.formatter = RequestIdFormatter(self.config.log_format, datefmt=self.config.date_format)
+        # Create custom formatter based on format type
+        if format_type == "json":
+            self.formatter = JSONFormatter(datefmt=self.config.date_format)
+        else:
+            self.formatter = RequestIdFormatter(self.config.log_format, datefmt=self.config.date_format)
 
         # Clear existing handlers to avoid duplicates
         self._clear_existing_handlers()
@@ -59,7 +101,9 @@ class SherlockAI:
         if self.config.console_enabled:
             console_handler = logging.StreamHandler()
             console_handler.setLevel(self.config.console_level)
-            console_handler.setFormatter(self.formatter)
+            # Console always uses standard format for readability
+            console_formatter = RequestIdFormatter(self.config.log_format, datefmt=self.config.date_format)
+            console_handler.setFormatter(console_formatter)
             logging.root.addHandler(console_handler)
             self.handlers['console'] = console_handler
 
@@ -133,7 +177,7 @@ class SherlockAI:
         """
         self.cleanup()
         self.config = new_config
-        self.setup()
+        self.setup(new_config.log_format_type)
     
     def cleanup(self):
         """Clean up handlers and resources"""
@@ -150,7 +194,8 @@ class SherlockAI:
             'handlers': list(self.handlers.keys()),
             'log_files': list(self.config.log_files.keys()),
             'logs_dir': self.config.logs_dir,
-            'console_enabled': self.config.console_enabled
+            'console_enabled': self.config.console_enabled,
+            "format_type": self.config.log_format_type
         }
     
     @classmethod
@@ -161,7 +206,7 @@ class SherlockAI:
         return cls._instance
 
 
-def sherlock_ai(config: Optional[LoggingConfig] = None):
+def sherlock_ai(config: Optional[LoggingConfig] = None, format_type: str = "log"):
     """
     Set up logging configuration with full customization support
 
@@ -176,12 +221,21 @@ def sherlock_ai(config: Optional[LoggingConfig] = None):
     if config is None:
         config = LoggingConfig()
 
+    # Update format type
+    config.log_format_type = format_type
+    
+    # Regenerate log files with correct extensions
+    config.log_files = config._get_default_log_files()
+
     # Create logs directory if it doesn't exist
     logs_dir = Path(config.logs_dir)
     logs_dir.mkdir(exist_ok=True)
 
-    # Create custom formatter with request ID support
-    formatter = RequestIdFormatter(config.log_format, datefmt=config.date_format)
+    # Create custom formatter based on format type
+    if format_type == "json":
+        formatter = JSONFormatter(datefmt=config.date_format)
+    else:
+        formatter = RequestIdFormatter(config.log_format, datefmt=config.date_format)
 
     # Clear existing handlers to avoid duplicates
     logging.root.handlers.clear()
@@ -196,7 +250,9 @@ def sherlock_ai(config: Optional[LoggingConfig] = None):
     if config.console_enabled:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(config.console_level)
-        console_handler.setFormatter(formatter)
+        # Console always uses standard format for readability
+        console_formatter = RequestIdFormatter(config.log_format, datefmt=config.date_format)
+        console_handler.setFormatter(console_formatter)
         logging.root.addHandler(console_handler)
 
     # Create file handlers

@@ -2,9 +2,7 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.3.0"
-# __author__ = "Pranaw Mishra"
-# __email__ = "pranawmishra73@gmail.com"
+__version__ = "1.4.0"
 
 # Import main components for easy access
 from .performance import log_performance, PerformanceTimer
@@ -18,6 +16,7 @@ from .monitoring import (
     ResourceTracker,
     ResourceMonitor,
 )
+from .analysis import hardcoded_value_detector, CodeAnalyzer
 
 # ✅ Logger name constants 
 class LoggerNames:
@@ -70,6 +69,10 @@ __all__ = [
     # Logger utilities
     "LoggerNames",
     "list_available_loggers",
+
+    # Analysis
+    "hardcoded_value_detector",
+    "CodeAnalyzer",
 
     # Package info
     "__version__",

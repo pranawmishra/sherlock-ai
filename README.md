@@ -21,6 +21,8 @@ A Python package for performance monitoring and logging utilities that helps you
 - 🔄 **Runtime Reconfiguration**: Change logging settings without application restart
 - 🧹 **Resource Management**: Automatic cleanup and context manager support
 - 🔍 **Logging Introspection**: Query current logging configuration and statistics
+- 📋 **JSON Format Support**: Choose between standard log format or structured JSON output for better parsing and analysis
+- 🔍 **Code Analysis**: Automatic detection and refactoring of hardcoded values using AST parsing and LLM suggestions
 
 ## Installation
 
@@ -33,7 +35,7 @@ pip install sherlock-ai
 ### Basic Setup
 
 ```python
-from sherlock_ai import sherlock_ai, get_logger, log_performance
+from sherlock_ai import sherlock_ai, get_logger, log_performance, hardcoded_value_detector
 import time
 
 # Initialize logging (call once at application startup)
@@ -43,8 +45,9 @@ sherlock_ai()
 logger = get_logger(__name__)
 
 @log_performance
+@hardcoded_value_detector
 def my_function():
-    # Your code here
+    # Your code here - hardcoded values will be automatically detected
     try:
         time.sleep(1)
         logger.info("Processing completed")
@@ -54,6 +57,7 @@ def my_function():
         raise
 
 # This will log: PERFORMANCE | my_module.my_function | SUCCESS | 1.003s
+# And automatically refactor any hardcoded values to constants
 result = my_function()
 ```
 
@@ -286,6 +290,56 @@ print(f"Current memory: {ResourceMonitor.format_bytes(memory_snapshot.current_si
 formatted = ResourceMonitor.format_bytes(1024 * 1024 * 512)  # "512.00MB"
 ```
 
+## Code Analysis and Refactoring
+
+### Automatic Hardcoded Value Detection
+
+Automatically detect and refactor hardcoded values in your functions:
+
+```python
+from sherlock_ai import hardcoded_value_detector
+
+@hardcoded_value_detector
+def api_handler():
+    url = "https://api.example.com"
+    timeout = 30
+    message = "Processing request"
+    return requests.get(url, timeout=timeout)
+
+# Automatically creates constants.py with:
+# API_URL = "https://api.example.com"
+# TIMEOUT_SECONDS = 30
+# PROCESSING_MESSAGE = "Processing request"
+# And updates your function to use these constants
+```
+
+### Manual Code Analysis
+
+Use the CodeAnalyzer class for custom analysis:
+
+```python
+from sherlock_ai.analysis import CodeAnalyzer
+
+# Initialize with optional Groq API key for intelligent naming
+analyzer = CodeAnalyzer()
+
+# Detect hardcoded values in source code
+with open('my_file.py', 'r') as f:
+    source = f.read()
+
+hardcoded_values = analyzer.detect_hardcoded_values(source)
+for value, value_type, node in hardcoded_values:
+    constant_name = analyzer.suggest_constant_name(value, value_type, "my_function")
+    analyzer.append_to_constants_file(constant_name, value)
+```
+
+**Features:**
+- **AST-based Detection**: Uses Python's AST parser for accurate analysis
+- **Smart Naming**: LLM-powered constant naming with heuristic fallback
+- **Automatic Refactoring**: Updates source code to use constants
+- **Multiple Value Types**: Detects strings, numbers, and URLs
+- **Constants Management**: Automatically manages constants.py file
+
 ## Advanced Configuration
 
 ### Configuration Presets
@@ -329,6 +383,52 @@ config = LoggingConfig(
 )
 
 sherlock_ai(config)
+```
+
+### JSON Format Logging
+
+Choose between standard log format and structured JSON output:
+
+```python
+from sherlock_ai import sherlock_ai, SherlockAI
+
+# Standard format (default) - creates .log files
+sherlock_ai()
+
+# JSON format - creates .json files with structured data
+sherlock_ai(format_type="json")
+
+# Class-based API with JSON format
+logger_manager = SherlockAI()
+logger_manager.setup("json")  # Creates app.json, errors.json, etc.
+```
+
+**Standard Format Output:**
+```
+2025-07-15 20:51:19 - aa580b62 - ApiLogger - INFO - Request started
+```
+
+**JSON Format Output:**
+```json
+{"timestamp": "2025-07-15 20:51:19", "level": "INFO", "logger": "ApiLogger", "message": "Request started", "request_id": "aa580b62", "module": "api", "function": "handle_request", "line": 42, "thread": 13672, "thread_name": "MainThread", "process": 22008}
+```
+
+**Loading JSON Logs:**
+```python
+import json
+
+def load_json_logs(filename):
+    logs = []
+    with open(filename, 'r') as f:
+        for line in f:
+            if line.strip():
+                logs.append(json.loads(line.strip()))
+    return logs
+
+# Usage
+logs = load_json_logs('logs/api.json')
+for log in logs:
+    print(f"[{log['timestamp']}] {log['level']}: {log['message']}")
 ```
 
 ### Flexible Log Management
@@ -632,7 +732,7 @@ Advanced logging management with instance-based configuration.
 - `config` (Optional[LoggingConfig]): Configuration object. If None, uses default configuration.
 
 **Methods:**
-- `setup()`: Set up logging configuration. Returns applied LoggingConfig.
+- `setup(format_type="log")`: Set up logging configuration. Pass "json" for JSON format logs. Returns applied LoggingConfig.
 - `reconfigure(new_config)`: Change configuration without restart.
 - `cleanup()`: Clean up handlers and resources.
 - `get_stats()`: Get current logging statistics.
@@ -680,6 +780,27 @@ if config:
     print(f"Console enabled: {config.console_enabled}")
 ```
 
+### `@hardcoded_value_detector` Decorator
+
+Automatically detect and refactor hardcoded values in functions.
+
+Parameters:
+- `analyzer` (CodeAnalyzer, optional): Custom CodeAnalyzer instance to use
+
+### `CodeAnalyzer` Class
+
+Analyze Python code and detect hardcoded values.
+
+**Constructor Parameters:**
+- `api_key` (str, optional): Groq API key for LLM-based naming
+- `constants_file` (str, optional): Path to constants file (default: "constants.py")
+
+**Methods:**
+- `detect_hardcoded_values(source_code)`: Detect hardcoded strings, numbers, and URLs in source code
+- `suggest_constant_name(value, value_type, context)`: Suggest appropriate constant names
+- `append_to_constants_file(constant_name, value)`: Add constants to the constants file
+- `modify_function_code(source_code, replacements, file_path)`: Refactor code to use constants
+
 ## Configuration
 
 ### Basic Logging Setup
@@ -688,7 +809,10 @@ if config:
 from sherlock_ai import sherlock_ai, get_logger
 
 # Initialize logging (call once at application startup)
-sherlock_ai()
+sherlock_ai()  # Default: creates .log files
+
+# Or use JSON format for structured logging
+sherlock_ai(format_type="json")  # Creates .json files
 
 # Get a logger for your module
 logger = get_logger(__name__)
@@ -849,11 +973,15 @@ request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
 - **FastAPI Development**: Optimized for FastAPI auto-reload with no duplicate log entries during development
 - **Logger Organization**: Use predefined logger names with autocomplete support for better code maintainability
 - **Performance Profiling**: Comprehensive monitoring for identifying bottlenecks in CPU, memory, and I/O operations
+- **Code Quality Improvement**: Automatically detect and refactor hardcoded values to improve maintainability
+- **Legacy Code Modernization**: Systematically identify and extract constants from existing codebases
 
 ## Requirements
 
 - Python >= 3.8
 - **psutil** >= 5.8.0 (for memory and resource monitoring)
+- **astor** >= 0.8.1 (for AST to source code conversion in code analysis)
+- **groq** >= 0.30.0 (for LLM-based constant naming)
 - Standard library for basic performance monitoring
 
 ## License

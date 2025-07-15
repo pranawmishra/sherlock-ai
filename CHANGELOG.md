@@ -16,6 +16,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.4.0] - 2025-01-16
+
+### Added
+- **JSON Format Logging**: New structured JSON output option for better log parsing and analysis
+- **Format Type Parameter**: Added `format_type` parameter to `sherlock_ai()` function and `SherlockAI.setup()` method
+- **JSONFormatter Class**: New formatter class for structured JSON log output with comprehensive metadata
+- **NDJSON Support**: Newline-delimited JSON format for efficient log processing and streaming
+- **Enhanced Log Metadata**: JSON logs include additional fields like module, function, line number, thread info, and process ID
+- **Flexible File Extensions**: Automatic file extension selection (.log or .json) based on chosen format type
+- **Code Analysis and Refactoring**: New automatic code analysis capabilities for detecting and refactoring hardcoded values
+- **Hardcoded Value Detector**: `@hardcoded_value_detector` decorator for automatic detection and refactoring of hardcoded strings, numbers, and URLs
+- **CodeAnalyzer Class**: Comprehensive code analysis class with AST parsing and LLM-powered constant naming
+- **AST-Based Detection**: Uses Python's AST parser for accurate hardcoded value detection
+- **Smart Constant Naming**: LLM-powered constant naming with heuristic fallback using Groq API
+- **Automatic Constants Management**: Automatically creates and manages constants.py file with detected values
+
+### Changed
+- **Backward Compatibility**: Default behavior remains unchanged (standard .log format)
+- **File Organization**: Log files now use appropriate extensions based on format type selection
+- **Console Output**: Console logging always uses standard format for readability regardless of file format choice
+
+### Improved
+- **Log Processing**: JSON format enables better programmatic log analysis and integration with log processing tools
+- **Debugging Information**: JSON logs provide richer context with function-level metadata
+- **Tool Integration**: Better compatibility with modern log analysis tools and pipelines that expect structured data
+
 ## [1.3.0] - 2025-01-12
 
 ### Added
