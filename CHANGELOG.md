@@ -16,7 +16,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
-## [1.4.0] - 2025-01-16
+## [1.4.1] - 2025-07-16
+
+### Added
+- **Simplified LogFileConfig**: Automatic path expansion for user convenience - specify base filenames instead of full paths
+- **Smart Path Construction**: Auto-generates full paths using `logs_dir` and `log_format_type` from parent `LoggingConfig`
+- **Flexible Configuration**: Support for both simplified base names and full custom paths when needed
+
+### Changed
+- **LogFileConfig Behavior**: Now automatically expands base filenames (e.g., `"app"`) to full paths (e.g., `"logs/app.json"`) when no directory separators are present
+- **User Experience**: Significantly reduced configuration boilerplate by leveraging existing `logs_dir` and `log_format_type` settings
+- **API Enhancement**: Enhanced `LoggingConfig.__post_init__()` to include automatic path expansion before default setup
+
+### Fixed
+- **Critical Bug**: Removed `format_type` parameter from `SherlockAI.setup()` method that was incorrectly overriding user's `LoggingConfig.log_format_type` setting
+- **Configuration Override Issue**: Fixed bug where custom `LogFileConfig` settings were being ignored due to method parameter precedence
+- **User Configuration Respect**: Ensured that user-provided configuration is the single source of truth without method parameter interference
+
+### Improved
+- **Developer Experience**: Users can now write `LogFileConfig("app")` instead of `LogFileConfig("logs/app.json")` 
+- **DRY Principle**: Eliminated repetition of directory paths and file extensions in log configuration
+- **Backward Compatibility**: Full custom paths still work unchanged for users who need complete control
+- **Documentation**: Updated README.md with comprehensive examples showing both simplified and full path approaches
+
+## [1.4.0] - 2025-07-16
 
 ### Added
 - **JSON Format Logging**: New structured JSON output option for better log parsing and analysis
@@ -42,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Debugging Information**: JSON logs provide richer context with function-level metadata
 - **Tool Integration**: Better compatibility with modern log analysis tools and pipelines that expect structured data
 
-## [1.3.0] - 2025-01-12
+## [1.3.0] - 2025-07-12
 
 ### Added
 - **Class-Based Architecture**: New `SherlockAI` class for advanced logging management with instance-based configuration
@@ -81,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Database Ready**: Prepared architecture for future database storage integration
 - **Extensible Design**: Created extensible class structure for future framework features
 
-## [1.2.0] - 2025-01-02
+## [1.2.0] - 2025-07-02
 
 ### Added
 - **Memory and Resource Monitoring**: Comprehensive monitoring system for tracking system resources
@@ -123,7 +146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Type Safety**: Enhanced type hints throughout monitoring modules
 - **Documentation**: Comprehensive docstrings for all monitoring functionality
 
-## [1.1.4] - 2025-01-02
+## [1.1.4] - 2025-07-02
 
 ### Added
 - Comprehensive testing improvements
@@ -175,7 +198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added automatic version detection and release tagging
 - Enhanced security through OIDC-based authentication
 
-## [0.1.0] - 2025-01-10
+## [0.1.0] - 2025-06-28
 
 ### Added
 - **Performance Monitoring**: `@log_performance` decorator for tracking function execution times
@@ -215,7 +238,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-- **1.0.0** - Initial release with core performance monitoring and logging functionality
+- **0.1.0** - Initial release with core performance monitoring and logging functionality
+- **1.0.0** - First stable release with comprehensive performance monitoring
 - **1.0.1** - [Planned] Trusted publishing and automated CI/CD pipeline
 - **1.1.0** - Advanced logging configuration system with dataclass-based config, presets, and flexible log management
-- **1.1.4** - Enhanced logging setup with handler duplication fixes, logger name constants, and improved development experience 
+- **1.1.4** - Enhanced logging setup with handler duplication fixes, logger name constants, and improved development experience
+- **1.2.0** - Memory and resource monitoring with comprehensive system tracking, modular architecture, and psutil integration
+- **1.3.0** - Class-based architecture with SherlockAI class, runtime reconfiguration, and context manager support
+- **1.4.0** - JSON format logging, code analysis and refactoring, hardcoded value detection with LLM-powered constant naming
+- **1.4.1** - Simplified LogFileConfig with automatic path expansion, critical bug fixes for configuration override issues 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Union, List, Dict
 import logging
-
+import os
 @dataclass
 class LogFileConfig:
     """Configuration for individual log files"""
@@ -51,6 +51,9 @@ class LoggingConfig:
 
     def __post_init__(self):
         """Set up default configuration if not provided"""
+        # Auto-expand log file paths for user convenience
+        self._expand_log_file_paths()
+
         if not self.log_files:
             self.log_files = self._get_default_log_files()
         
@@ -59,6 +62,19 @@ class LoggingConfig:
             
         if not self.external_loggers:
             self.external_loggers = self._get_default_external_loggers()
+
+    def _expand_log_file_paths(self):
+        """Automatically expand base filenames to full paths using logs_dir and log_format_type"""
+        file_extension = ".json" if self.log_format_type == "json" else ".log"
+        
+        for config in self.log_files.values():
+            # Check if filename is just a base name (no directory separators)
+            if not any(sep in config.filename for sep in ['/', '\\', os.path.sep]):
+                # Expand to full path with proper extension if not already present
+                # if not config.filename.endswith(('.log', '.json')):
+                config.filename = f"{self.logs_dir}/{config.filename}{file_extension}"
+                # else:
+                    # config.filename = f"{self.logs_dir}/{config.filename}"
 
     def _get_default_log_files(self) -> Dict[str, LogFileConfig]:
         """Default log files configuration"""
