@@ -68,7 +68,7 @@ class SherlockAI:
         self.handlers: Dict[str, logging.Handler] = {}
         self.formatter: Optional[RequestIdFormatter] = None
         
-    def setup(self, format_type: str = "log") -> LoggingConfig:
+    def setup(self) -> LoggingConfig:
         """
         Set up logging configuration
 
@@ -78,18 +78,13 @@ class SherlockAI:
         Returns:
             The configuration that was applied
         """
-        # Update format type in config
-        self.config.log_format_type = format_type
-
-        # Regenerate log files based on new format type
-        self.config.log_files = self.config._get_default_log_files()
 
         # Create logs directory if it doesn't exist
         logs_dir = Path(self.config.logs_dir)
         logs_dir.mkdir(exist_ok=True)
 
         # Create custom formatter based on format type
-        if format_type == "json":
+        if self.config.log_format_type == "json":
             self.formatter = JSONFormatter(datefmt=self.config.date_format)
         else:
             self.formatter = RequestIdFormatter(self.config.log_format, datefmt=self.config.date_format)
@@ -177,7 +172,7 @@ class SherlockAI:
         """
         self.cleanup()
         self.config = new_config
-        self.setup(new_config.log_format_type)
+        self.setup()
     
     def cleanup(self):
         """Clean up handlers and resources"""
@@ -219,20 +214,14 @@ def sherlock_ai(config: Optional[LoggingConfig] = None, format_type: str = "log"
     global _current_config # Access the global variable
     
     if config is None:
-        config = LoggingConfig()
-
-    # Update format type
-    config.log_format_type = format_type
-    
-    # Regenerate log files with correct extensions
-    config.log_files = config._get_default_log_files()
+        config = LoggingConfig(log_format_type=format_type)
 
     # Create logs directory if it doesn't exist
     logs_dir = Path(config.logs_dir)
     logs_dir.mkdir(exist_ok=True)
 
     # Create custom formatter based on format type
-    if format_type == "json":
+    if config.log_format_type == "json":
         formatter = JSONFormatter(datefmt=config.date_format)
     else:
         formatter = RequestIdFormatter(config.log_format, datefmt=config.date_format)

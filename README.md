@@ -9,6 +9,7 @@ A Python package for performance monitoring and logging utilities that helps you
 - 📊 **Resource Monitoring**: Monitor CPU, memory, I/O, and network usage during function execution
 - ⏱️ **Context Managers**: Monitor code block execution with simple context managers
 - 🔧 **Advanced Configuration System**: Complete control over logging with dataclass-based configuration
+- ⚡ **Simplified Configuration**: Auto-expanding file paths - just specify base names instead of full paths
 - 🎛️ **Configuration Presets**: Pre-built setups for development, production, and testing environments
 - 🔄 **Async/Sync Support**: Works seamlessly with both synchronous and asynchronous functions
 - 📈 **Request Tracking**: Built-in request ID tracking for distributed systems
@@ -365,15 +366,17 @@ sherlock_ai(LoggingPresets.performance_only())
 ```python
 from sherlock_ai import sherlock_ai, LoggingConfig, LogFileConfig, LoggerConfig
 
-# Create completely custom configuration
+# Create completely custom configuration with simplified file paths
 config = LoggingConfig(
     logs_dir="my_app_logs",
+    log_format_type="json",  # Will create .json files
     console_level="DEBUG",
     log_files={
-        "application": LogFileConfig("my_app_logs/app.log", max_bytes=50*1024*1024),
-        "errors": LogFileConfig("my_app_logs/errors.log", level="ERROR"),
-        "performance": LogFileConfig("my_app_logs/perf.log"),
-        "custom": LogFileConfig("my_app_logs/custom.log", backup_count=10)
+        # Just specify base names - full paths auto-generated from logs_dir + log_format_type
+        "application": LogFileConfig("app", max_bytes=50*1024*1024),
+        "errors": LogFileConfig("errors", level="ERROR"),
+        "performance": LogFileConfig("perf"),
+        "custom": LogFileConfig("custom", backup_count=10)
     },
     loggers={
         "api": LoggerConfig("mycompany.api", log_files=["application", "custom"]),
@@ -383,6 +386,49 @@ config = LoggingConfig(
 )
 
 sherlock_ai(config)
+# Creates: my_app_logs/app.json, my_app_logs/errors.json, my_app_logs/perf.json, my_app_logs/custom.json
+```
+
+### Simplified vs Full Path Configuration
+
+**Simplified Configuration (Recommended):**
+```python
+# Automatic path expansion - just specify base names
+config = LoggingConfig(
+    logs_dir="logs",
+    log_format_type="json",  # or "log"
+    log_files={
+        "app": LogFileConfig("application"),      # → logs/application.json
+        "errors": LogFileConfig("error_log"),    # → logs/error_log.json
+        "api": LogFileConfig("api_requests"),    # → logs/api_requests.json
+    }
+)
+```
+
+**Real-World Example:**
+```python
+from sherlock_ai import LoggingConfig, LogFileConfig, SherlockAI
+
+# Production setup with simplified configuration
+config = LoggingConfig(
+    logs_dir="production_logs",
+    log_format_type="json",
+    log_files={
+        "app": LogFileConfig("application", max_bytes=100*1024*1024),  # 100MB files
+        "errors": LogFileConfig("errors", level="ERROR", backup_count=20),
+        "api": LogFileConfig("api_requests", backup_count=15),
+        "performance": LogFileConfig("performance_metrics"),
+    }
+)
+
+# This creates:
+# production_logs/application.json
+# production_logs/errors.json  
+# production_logs/api_requests.json
+# production_logs/performance_metrics.json
+
+logging_manager = SherlockAI(config)
+logging_manager.setup()
 ```
 
 ### JSON Format Logging
@@ -487,7 +533,7 @@ elif env == "testing":
     config = LoggingConfig(
         logs_dir="test_logs",
         console_enabled=False,  # No console output during tests
-        log_files={"test_results": LogFileConfig("test_logs/results.log")}
+        log_files={"test_results": LogFileConfig("results")}  # → test_logs/results.log
     )
     sherlock_ai(config)
 else:
@@ -655,12 +701,17 @@ Parameters:
 Configuration for individual log files.
 
 Parameters:
-- `filename` (str): Path to the log file
+- `filename` (str): **Base filename or full path**. If no directory separators are present, automatically expands to `{logs_dir}/{filename}{extension}` using the parent `LoggingConfig` settings.
 - `level` (Union[str, int]): Log level for this file (default: INFO)
 - `max_bytes` (int): Maximum file size before rotation (default: 10MB)
 - `backup_count` (int): Number of backup files to keep (default: 5)
 - `encoding` (str): File encoding (default: "utf-8")
 - `enabled` (bool): Whether this log file is enabled (default: True)
+
+**Filename Examples:**
+- `"app"` → Expands to `logs/app.log` (or `logs/app.json` if JSON format)
+- `"custom/path/file.log"` → Used as-is (no expansion)
+- `"/absolute/path/file.log"` → Used as-is (no expansion)
 
 #### `LoggerConfig`
 
@@ -987,6 +1038,11 @@ request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Authors
+
+- **Pranaw Mishra** - [pranawmishra73@gmail.com](mailto:pranawmishra73@gmail.com)
+- **Kunal Aggarwal** - [aggarwalkunu263@gmail.com](mailto:aggarwalkunu263@gmail.com)
 
 ## Contributing
 
