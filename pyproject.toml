@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Pranaw Mishra", email = "pranawmishra73@gmail.com"}
+    {name = "Pranaw Mishra", email = "pranawmishra73@gmail.com"},
+    {name = "Kunal Aggarwal", email = "aggarwalkunu263@gmail.com"}
 ]
 keywords = ["performance", "monitoring", "logging", "debugging", "profiling", "analysis"]
 classifiers = [
