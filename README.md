@@ -31,6 +31,11 @@ A Python package for performance monitoring and logging utilities that helps you
 pip install sherlock-ai
 ```
 
+## Authors
+
+- **Pranaw Mishra** - [pranawmishra73@gmail.com](mailto:pranawmishra73@gmail.com)
+- **Kunal Aggarwal** - [aggarwalkunu263@gmail.com](mailto:aggarwalkunu263@gmail.com)
+
 ## Quick Start
 
 ### Basic Setup
@@ -1038,11 +1043,6 @@ request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Authors
-
-- **Pranaw Mishra** - [pranawmishra73@gmail.com](mailto:pranawmishra73@gmail.com)
-- **Kunal Aggarwal** - [aggarwalkunu263@gmail.com](mailto:aggarwalkunu263@gmail.com)
 
 ## Contributing
 
