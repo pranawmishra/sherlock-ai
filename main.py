@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # config = get_current_config()
     # print(config)
     uvicorn.run(
-        "test_fastapi:app",
+        "tests.test_fastapi:app",
         host="127.0.0.1",
         port=8000,
         reload=True

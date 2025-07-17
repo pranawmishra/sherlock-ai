@@ -2,7 +2,7 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.4.1"
+__version__ = "1.5.0"
 
 # Import main components for easy access
 from .performance import log_performance, PerformanceTimer

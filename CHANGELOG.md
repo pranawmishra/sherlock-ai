@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.5.0] - 2025-01-17
+
+### Added
+- **Smart Code Analysis Decorator**: New `@smart_check` decorator for LLM-powered code review with suggestions for config management and type safety
+
 ## [1.4.1] - 2025-07-16
 
 ### Added
@@ -246,4 +251,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.2.0** - Memory and resource monitoring with comprehensive system tracking, modular architecture, and psutil integration
 - **1.3.0** - Class-based architecture with SherlockAI class, runtime reconfiguration, and context manager support
 - **1.4.0** - JSON format logging, code analysis and refactoring, hardcoded value detection with LLM-powered constant naming
-- **1.4.1** - Simplified LogFileConfig with automatic path expansion, critical bug fixes for configuration override issues 
+- **1.4.1** - Simplified LogFileConfig with automatic path expansion, critical bug fixes for configuration override issues
+- **1.5.0** - Smart code analysis decorator with LLM-powered code review, Groq API integration, and async/sync function support 
