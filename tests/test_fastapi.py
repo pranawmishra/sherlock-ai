@@ -5,6 +5,7 @@ from sherlock_ai import get_logger, set_request_id
 import uuid
 from sherlock_ai import log_performance, monitor_memory, monitor_resources, hardcoded_value_detector
 from sherlock_ai.analysis import smart_check
+from sherlock_ai.monitoring import sherlock_error_handler
 # from tests.helper_nested import helper_nested
 logger = get_logger('ApiLogger')
 
@@ -39,11 +40,13 @@ def create_app():
             logger.error(f'Error in health check: {e}')
 
     @app.get('/greet')
-    @smart_check
+    # @smart_check
+    @sherlock_error_handler
     async def greet_user(name: str):
         greeting = 'Hello, World!'
         timeout = 60
         response = 'Processed'
+        print(1 / 0)
         return {'message': greeting, 'processed': response, 'timeout': timeout}
     return app
 

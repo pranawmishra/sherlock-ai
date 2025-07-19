@@ -59,7 +59,7 @@ def smart_check(func: F = None) -> Union[F, Callable[[F], F]]:
             return f(*args, **kwargs)
         
         # Return the appropriate wrapper based on function type
-        return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+        return async_wrapper if asyncio.iscoroutinefunction(f) else sync_wrapper
     
     if func is None:
         return decorator

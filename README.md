@@ -24,6 +24,8 @@ A Python package for performance monitoring and logging utilities that helps you
 - 🔍 **Logging Introspection**: Query current logging configuration and statistics
 - 📋 **JSON Format Support**: Choose between standard log format or structured JSON output for better parsing and analysis
 - 🔍 **Code Analysis**: Automatic detection and refactoring of hardcoded values using AST parsing and LLM suggestions
+- 🗄️ **MongoDB Integration**: Automatic error insights storage with MongoDB support
+- 🚨 **Error Analysis**: AI-powered error analysis with automatic probable cause detection
 
 ## Installation
 
@@ -42,6 +44,7 @@ pip install sherlock-ai
 
 ```python
 from sherlock_ai import sherlock_ai, get_logger, log_performance, hardcoded_value_detector
+from sherlock_ai.monitoring import sherlock_error_handler
 import time
 
 # Initialize logging (call once at application startup)
@@ -52,8 +55,10 @@ logger = get_logger(__name__)
 
 @log_performance
 @hardcoded_value_detector
+@sherlock_error_handler
 def my_function():
     # Your code here - hardcoded values will be automatically detected
+    # Errors will be automatically analyzed and stored in MongoDB
     try:
         time.sleep(1)
         logger.info("Processing completed")
@@ -64,6 +69,7 @@ def my_function():
 
 # This will log: PERFORMANCE | my_module.my_function | SUCCESS | 1.003s
 # And automatically refactor any hardcoded values to constants
+# And analyze any errors with AI-powered insights
 result = my_function()
 ```
 
@@ -294,6 +300,52 @@ print(f"Current memory: {ResourceMonitor.format_bytes(memory_snapshot.current_si
 
 # Format bytes in human-readable format
 formatted = ResourceMonitor.format_bytes(1024 * 1024 * 512)  # "512.00MB"
+```
+
+## Error Analysis and Storage
+
+### AI-Powered Error Insights
+
+Automatically analyze errors with AI and store insights in MongoDB:
+
+```python
+from sherlock_ai.monitoring import sherlock_error_handler
+import os
+
+# Set up MongoDB connection (optional)
+os.environ["MONGO_URI"] = "mongodb://localhost:27017"
+
+@sherlock_error_handler
+def risky_function():
+    # Any errors will be automatically analyzed and stored
+    result = 1 / 0  # This will trigger error analysis
+    return result
+
+# Error insights are automatically:
+# 1. Analyzed by AI for probable cause
+# 2. Stored in MongoDB (sherlock-meta.error-insights collection)
+# 3. Logged with detailed information
+```
+
+### MongoDB Integration
+
+Configure MongoDB storage for error insights:
+
+```python
+from sherlock_ai.storage import MongoManager
+
+# Initialize MongoDB manager
+mongo = MongoManager("mongodb://localhost:27017")
+
+# Manual error insight storage
+error_data = {
+    "function_name": "my_function",
+    "error_message": "Division by zero",
+    "stack_trace": "...",
+    "probable_cause": "AI analysis result"
+}
+
+mongo.save(error_data)
 ```
 
 ## Code Analysis and Refactoring
@@ -836,6 +888,16 @@ if config:
     print(f"Console enabled: {config.console_enabled}")
 ```
 
+### `@sherlock_error_handler` Decorator
+
+Automatically analyze errors with AI and store insights in MongoDB.
+
+Features:
+- AI-powered error analysis using LLM
+- Automatic MongoDB storage of error insights
+- Support for both sync and async functions
+- Detailed error logging with probable causes
+
 ### `@hardcoded_value_detector` Decorator
 
 Automatically detect and refactor hardcoded values in functions.
@@ -856,6 +918,22 @@ Analyze Python code and detect hardcoded values.
 - `suggest_constant_name(value, value_type, context)`: Suggest appropriate constant names
 - `append_to_constants_file(constant_name, value)`: Add constants to the constants file
 - `modify_function_code(source_code, replacements, file_path)`: Refactor code to use constants
+
+### `MongoManager` Class
+
+Manage MongoDB connections and error insight storage.
+
+**Constructor Parameters:**
+- `mongo_uri` (str, optional): MongoDB connection string. If not provided, uses MONGO_URI environment variable.
+
+**Methods:**
+- `save(data)`: Save error insight data to MongoDB collection
+- `enabled` (bool): Property indicating if MongoDB backend is configured and available
+
+**Storage Details:**
+- Database: `sherlock-meta`
+- Collection: `error-insights`
+- Automatic connection management
 
 ## Configuration
 
@@ -1031,13 +1109,16 @@ request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
 - **Performance Profiling**: Comprehensive monitoring for identifying bottlenecks in CPU, memory, and I/O operations
 - **Code Quality Improvement**: Automatically detect and refactor hardcoded values to improve maintainability
 - **Legacy Code Modernization**: Systematically identify and extract constants from existing codebases
+- **Error Analysis & Debugging**: AI-powered error analysis with automatic storage for pattern recognition
+- **Production Error Tracking**: MongoDB-based error insight storage for production monitoring and debugging
 
 ## Requirements
 
 - Python >= 3.8
 - **psutil** >= 5.8.0 (for memory and resource monitoring)
 - **astor** >= 0.8.1 (for AST to source code conversion in code analysis)
-- **groq** >= 0.30.0 (for LLM-based constant naming)
+- **groq** >= 0.30.0 (for LLM-based analysis and constant naming)
+- **pymongo** >= 4.0.0 (for MongoDB error insight storage)
 - Standard library for basic performance monitoring
 
 ## License

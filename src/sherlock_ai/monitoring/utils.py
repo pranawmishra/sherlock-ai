@@ -4,6 +4,8 @@ Utility functions for monitoring
 
 import logging
 from typing import Optional
+from groq import Groq
+import os
 
 from .snapshots import ResourceSnapshot, MemorySnapshot
 from .resource_monitor import ResourceMonitor
@@ -77,3 +79,15 @@ def log_resource_usage(function_name: str, start_resources: Optional[ResourceSna
     
     log_method = getattr(logger, log_level.lower())
     log_method(log_msg)
+
+def get_llm_cause(error_message: str, stack_trace: str):
+    """Get the probable cause of an error using LLM"""
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    response = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that analyzes error messages and stack traces to determine the probable cause of an error. Keep the reason and solution crisp and to the point."},
+            {"role": "user", "content": f"Error message: {error_message}\nStack trace: {stack_trace}"}
+        ]
+    )
+    return response.choices[0].message.content

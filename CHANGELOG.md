@@ -16,7 +16,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
-## [1.5.0] - 2025-01-17
+## [1.6.0] - 2025-07-19
+
+### Added
+- **MongoDB Integration**: New `MongoManager` class for automatic error insights storage with MongoDB support
+- **AI-Powered Error Analysis**: New `@sherlock_error_handler` decorator for automatic error analysis and insights
+- **Error Insights Storage**: Automatic storage of error analysis results in MongoDB (sherlock-meta.error-insights collection)
+- **Storage Module**: New `src/sherlock_ai/storage/` module for database and persistence management
+- **LLM Error Analysis**: Integration with Groq API for AI-powered probable cause detection in errors
+- **Async/Sync Error Handling**: Error handler decorator supports both synchronous and asynchronous functions
+- **Automatic Error Logging**: Enhanced error logging with AI-generated insights and MongoDB persistence
+- **Environment Configuration**: MongoDB connection via `MONGO_URI` environment variable with graceful fallback
+
+### Changed
+- **Package Structure**: Added new storage module for better organization of database-related functionality
+- **Error Handling Architecture**: Enhanced error handling with AI analysis and persistent storage capabilities
+- **Dependency Updates**: Added `pymongo>=4.10.1` for MongoDB integration
+
+### Infrastructure
+- **Database Architecture**: Prepared foundation for future vector database integration alongside MongoDB
+- **Modular Storage Design**: Extensible storage architecture supporting multiple database backends
+- **Error Insights Pipeline**: Complete pipeline from error detection to AI analysis to persistent storage
+
+## [1.5.0] - 2025-07-17
 
 ### Added
 - **Smart Code Analysis Decorator**: New `@smart_check` decorator for LLM-powered code review with suggestions for config management and type safety
