@@ -14,6 +14,7 @@ from .decorators import monitor_memory, monitor_resources
 from .context_managers import MemoryTracker, ResourceTracker
 from .resource_monitor import ResourceMonitor
 from .snapshots import ResourceSnapshot, MemorySnapshot
+from .error_insights import sherlock_error_handler
 from .utils import log_memory_usage, log_resource_usage
 
 # Export public API
@@ -21,6 +22,7 @@ __all__ = [
     # Decorators
     "monitor_memory",
     "monitor_resources",
+    "sherlock_error_handler",
     
     # Context managers
     "MemoryTracker",

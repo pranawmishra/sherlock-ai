@@ -2,7 +2,7 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
 
 # Import main components for easy access
 from .performance import log_performance, PerformanceTimer
@@ -26,6 +26,7 @@ class LoggerNames:
     SERVICES = "ServiceLogger"
     PERFORMANCE = "PerformanceLogger"
     MONITORING = "MonitoringLogger"
+    ERRORINSIGHTS = "ErrorInsightsLogger"
 
 # ✅ Convenience function
 def list_available_loggers():
@@ -35,7 +36,8 @@ def list_available_loggers():
         LoggerNames.DATABASE,
         LoggerNames.SERVICES,
         LoggerNames.PERFORMANCE,
-        LoggerNames.MONITORING
+        LoggerNames.MONITORING,
+        LoggerNames.ERRORINSIGHTS
     ]
 
 __all__ = [

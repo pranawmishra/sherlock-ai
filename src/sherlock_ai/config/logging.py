@@ -89,6 +89,7 @@ class LoggingConfig:
             "services": LogFileConfig(f"{self.logs_dir}/services{file_extension}"),
             "performance": LogFileConfig(f"{self.logs_dir}/performance{file_extension}"),
             "monitoring": LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}"),
+            "error_insights": LogFileConfig(f"{self.logs_dir}/error_insights{file_extension}"),
         }
 
     def _get_default_loggers(self) -> Dict[str, LoggerConfig]:
@@ -99,6 +100,7 @@ class LoggingConfig:
             "services": LoggerConfig("ServiceLogger", log_files=["services"]),
             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
             "monitoring": LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False),
+            "error_insights": LoggerConfig("ErrorInsightsLogger", log_files=["error_insights"], propagate=False),
         }
 
     def _get_default_external_loggers(self) -> Dict[str, Union[str, int]]:
