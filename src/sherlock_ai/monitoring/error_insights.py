@@ -17,10 +17,10 @@ mongo_manager = MongoManager()
 
 def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
     def decorator(f: F) -> F:
-        @functools.wraps(func)
+        @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
             try:
-                return await func(*args, **kwargs)
+                return await f(*args, **kwargs)
 
             except Exception as e:
                 error_message = str(e)
@@ -31,7 +31,7 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
 
                 # Prepare log entry:
                 log_entry = {
-                    "function_name": func.__name__,
+                    "function_name": f.__name__,
                     "error_message": error_message,
                     "stack_trace": stack,
                     "probable_cause": probable_cause
@@ -51,14 +51,13 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
             except Exception as e:
                 error_message = str(e)
                 stack = traceback.format_exc()
-                # return f(*args, **kwargs)
 
                 # Call LLM to analyze the error:
                 probable_cause = get_llm_cause(error_message, stack)
 
                 # Prepare log entry:
                 log_entry = {
-                    "function_name": func.__name__,
+                    "function_name": f.__name__,
                     "error_message": error_message,
                     "stack_trace": stack,
                     "probable_cause": probable_cause

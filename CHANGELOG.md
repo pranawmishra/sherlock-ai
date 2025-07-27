@@ -16,6 +16,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.6.1] - 2025-07-27
+
+### Added
+- **Global Monitoring Decorator**: New `@global_monitor` decorator that can compose all monitoring decorators with configurable parameters
+- **Convenience Monitoring Presets**: Added `@monitor_all`, `@monitor_critical`, `@monitor_performance_only`, and `@monitor_errors_only` decorators for common use cases
+- **Flexible Monitoring Control**: Boolean flags to enable/disable individual monitoring types (memory, resources, performance, error_handling)
+- **Global Parameter Overrides**: Global settings for `min_duration` and `log_level` that can override individual decorator settings
+- **Comprehensive Configuration Options**: Per-decorator parameter configuration with intelligent defaults
+
+### Fixed
+- **Critical Variable Bug**: Fixed incorrect variable usage in `@sherlock_error_handler` decorator where `func.__name__` was used instead of `f.__name__`
+- **Exception Handling Bug**: Fixed silently swallowed exceptions in error handler - exceptions are now properly re-raised after logging
+- **Function Metadata Preservation**: Corrected `@functools.wraps` usage to properly preserve function metadata in error handler
+
+### Changed
+- **Monitoring Package Exports**: Updated `__init__.py` to export new global monitoring decorators and convenience functions
+- **Decorator Composition**: Improved decorator composition order for optimal performance measurement accuracy
+- **Error Handler Reliability**: Enhanced error handler to ensure exceptions are logged AND properly propagated to calling code
+
+### Improved
+- **User Experience**: Single decorator can now replace multiple individual monitoring decorators with fine-grained control
+- **Code Maintainability**: Reduced boilerplate when applying multiple monitoring decorators to functions
+- **Configuration Flexibility**: Centralized monitoring configuration with per-type customization options
+
 ## [1.6.0] - 2025-07-19
 
 ### Added
@@ -274,4 +298,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.3.0** - Class-based architecture with SherlockAI class, runtime reconfiguration, and context manager support
 - **1.4.0** - JSON format logging, code analysis and refactoring, hardcoded value detection with LLM-powered constant naming
 - **1.4.1** - Simplified LogFileConfig with automatic path expansion, critical bug fixes for configuration override issues
-- **1.5.0** - Smart code analysis decorator with LLM-powered code review, Groq API integration, and async/sync function support 
+- **1.5.0** - Smart code analysis decorator with LLM-powered code review, Groq API integration, and async/sync function support
+- **1.6.0** - MongoDB integration, AI-powered error analysis with Groq API, enhanced error handling with storage capabilities
+- **1.6.1** - Global monitoring decorator with composable decorators, critical bug fixes in error handler, improved decorator composition 

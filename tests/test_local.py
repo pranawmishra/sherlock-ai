@@ -1,7 +1,7 @@
 # test_local.py
 import time
 import asyncio
-from sherlock_ai.performance import log_performance, PerformanceTimer, log_execution_time
+from sherlock_ai.monitoring.performance import log_performance, PerformanceTimer, log_execution_time
 from sherlock_ai import sherlock_ai, get_logger
 
 sherlock_ai()

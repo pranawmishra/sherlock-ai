@@ -27,9 +27,9 @@ def create_app():
         return response
 
     @app.get('/health')
-    @log_performance
-    @monitor_memory
-    @monitor_resources
+    @log_performance(include_args=True)
+    # @monitor_memory
+    # @monitor_resources
     def health_check():
         try:
             # helper_nested(1)
@@ -41,7 +41,8 @@ def create_app():
 
     @app.get('/greet')
     # @smart_check
-    @sherlock_error_handler
+    # @sherlock_error_handler
+    @log_performance(include_args=True)
     async def greet_user(name: str):
         greeting = 'Hello, World!'
         timeout = 60

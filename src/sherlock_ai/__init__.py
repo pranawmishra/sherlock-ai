@@ -2,10 +2,9 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.6.0"
+__version__ = "1.6.1"
 
 # Import main components for easy access
-from .performance import log_performance, PerformanceTimer
 from .logging_setup import sherlock_ai, get_logger, get_logging_stats, get_current_config, SherlockAI
 from .config import LoggingConfig, LoggingPresets, LogFileConfig, LoggerConfig
 from .utils import set_request_id, get_request_id, clear_request_id
@@ -15,6 +14,8 @@ from .monitoring import (
     MemoryTracker,
     ResourceTracker,
     ResourceMonitor,
+    log_performance,
+    PerformanceTimer,
 )
 from .analysis import hardcoded_value_detector, CodeAnalyzer
 
