@@ -3,7 +3,9 @@
 import asyncio
 import uvicorn
 from sherlock_ai import get_logging_stats, get_current_config, SherlockAI, LoggingConfig, LogFileConfig, LoggerConfig
+from dotenv import load_dotenv
 
+load_dotenv()
 
 log_files={
     "app": LogFileConfig("app", max_bytes=50*1024*1024),

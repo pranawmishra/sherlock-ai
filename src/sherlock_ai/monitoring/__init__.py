@@ -10,7 +10,8 @@ This package provides decorators and context managers for monitoring:
 """
 
 # Import all public classes and functions
-from .decorators import monitor_memory, monitor_resources
+from .resource_decorators import monitor_memory, monitor_resources
+from .performance import log_performance, PerformanceTimer
 from .context_managers import MemoryTracker, ResourceTracker
 from .resource_monitor import ResourceMonitor
 from .snapshots import ResourceSnapshot, MemorySnapshot
@@ -23,6 +24,8 @@ __all__ = [
     "monitor_memory",
     "monitor_resources",
     "sherlock_error_handler",
+    "log_performance",
+    "PerformanceTimer",
     
     # Context managers
     "MemoryTracker",
