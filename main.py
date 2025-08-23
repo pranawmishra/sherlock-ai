@@ -1,11 +1,11 @@
 # from tests.test_local import test_main
 # from tests.test_configuration import test_configuration_complete
-import asyncio
-import uvicorn
-from sherlock_ai import get_logging_stats, get_current_config, SherlockAI, LoggingConfig, LogFileConfig, LoggerConfig
 from dotenv import load_dotenv
 
 load_dotenv()
+import asyncio
+import uvicorn
+from sherlock_ai import get_logging_stats, get_current_config, SherlockAI, LoggingConfig, LogFileConfig, LoggerConfig
 
 log_files={
     "app": LogFileConfig("app", max_bytes=50*1024*1024),

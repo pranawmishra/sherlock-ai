@@ -38,7 +38,7 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 }
 
                 # Save to MongoDB:
-                mongo_manager.save(log_entry)
+                mongo_manager.save(log_entry, "error-insights")
 
                 logger.info(probable_cause)
                 # Re-raise or handle as needed
@@ -64,7 +64,7 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 }
 
                 # Save to MongoDB:
-                mongo_manager.save(log_entry)
+                mongo_manager.save(log_entry, "error-insights")
 
                 logger.info(probable_cause)
                 # Re-raise or handle as needed

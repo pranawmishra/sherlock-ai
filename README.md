@@ -26,6 +26,7 @@ A Python package for performance monitoring and logging utilities that helps you
 - 🔍 **Code Analysis**: Automatic detection and refactoring of hardcoded values using AST parsing and LLM suggestions
 - 🗄️ **MongoDB Integration**: Automatic error insights storage with MongoDB support
 - 🚨 **Error Analysis**: AI-powered error analysis with automatic probable cause detection
+- 💡 **Performance Insights**: AI-powered performance analysis that intelligently extracts user-defined function source code.
 
 ## Installation
 
@@ -930,9 +931,19 @@ Manage MongoDB connections and error insight storage.
 - `save(data)`: Save error insight data to MongoDB collection
 - `enabled` (bool): Property indicating if MongoDB backend is configured and available
 
+### `@sherlock_performance_insights` Decorator
+
+Automatically analyze performance bottlenecks with AI and store insights in MongoDB.
+
+Features:
+- AI-powered performance analysis using LLM
+- Automatic MongoDB storage of performance insights
+- Support for both sync and async functions
+- Intelligently extracts only user-defined function source code for analysis
+
 **Storage Details:**
 - Database: `sherlock-meta`
-- Collection: `error-insights`
+- Collection: `error-insights`, `performance-insights`
 - Automatic connection management
 
 ## Configuration

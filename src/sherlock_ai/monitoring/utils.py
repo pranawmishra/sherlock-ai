@@ -6,6 +6,11 @@ import logging
 from typing import Optional
 from groq import Groq
 import os
+import ast
+import inspect
+import textwrap
+from types import FunctionType
+from typing import Dict, Set
 
 from .snapshots import ResourceSnapshot, MemorySnapshot
 from .resource_monitor import ResourceMonitor
@@ -91,3 +96,148 @@ def get_llm_cause(error_message: str, stack_trace: str):
         ]
     )
     return response.choices[0].message.content
+
+def generate_performance_insights(function_name: str, args: list, kwargs: dict, duration: float, function_source_str: str):
+    """Generate performance insights using LLM"""
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    response = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that analyzes performance data to generate insights. Keep the insights crisp and to the point."},
+            {"role": "user", "content": f"Function name: {function_name}\nArgs: {args}\nKwargs: {kwargs}\nDuration: {duration}\nFunction source: {function_source_str}"}
+        ]
+    )
+    return response.choices[0].message.content
+
+class FunctionSource:
+
+    @staticmethod
+    def _get_called_functions_from_source(source: str) -> Set[str]:
+        tree = ast.parse(source)
+        return {
+            node.func.id
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+        }
+
+    @staticmethod
+    def _get_function_object_from_scope(func_obj: FunctionType, name: str):
+        """
+        Try to find the function object for `name` in the global scope of `func_obj`.
+        """
+        try:
+            return func_obj.__globals__[name]
+        except KeyError:
+            return None
+        
+    @staticmethod
+    def _extract_user_function_sources_only(
+        func: FunctionType,
+        exclude_patterns: Set[str] = None
+    ) -> Dict[str, str]:
+        """
+        Extract function sources but exclude decorator and monitoring functions(internal functions).
+        Only gets the target function and its called functions, excluding sherlock_ai decorators.
+        """
+        if exclude_patterns is None:
+            exclude_patterns = {
+                'sherlock_performance_insights',
+                'log_performance',
+                'generate_performance_insights',
+                'async_wrapper', 
+                'sync_wrapper', 
+                'decorator',
+                'run_insight_job',
+                'run_in_executor'
+            }
+
+        sources = {}
+        seen = set()
+
+        # NEW: Get the original function if this is a decorated function
+        # original_func = func
+        def unwrap_function(func):
+            seen = set()
+            while hasattr(func, '__wrapped__') and func not in seen:
+                seen.add(func)
+                original_func = func.__wrapped__
+            print(f"Found wrapped function: {func.__name__} -> {original_func.__name__}")
+            return original_func
+        original_func = unwrap_function(func)
+
+        # if hasattr(func, '__wrapped__'):
+        #     original_func = func.__wrapped__
+        #     print(f"Found wrapped function: {func.__name__} -> {original_func.__name__}")
+        
+        def _recursive_extract(current_func: FunctionType):
+            func_name = current_func.__name__
+
+            # Skip if already processed or if it's a decorator function
+            if func_name in seen:
+                return
+            
+            seen.add(func_name)
+            
+            try:
+                src = textwrap.dedent(inspect.getsource(current_func))              
+
+                if func_name not in exclude_patterns:
+                    print(f"Processing {func_name}")        
+                    sources[func_name] = src
+                called_names = FunctionSource._get_called_functions_from_source(src)
+                    
+                # Recursive case: process all called functions
+                for called_name in called_names:
+                    obj = FunctionSource._get_function_object_from_scope(current_func, called_name)
+                    if isinstance(obj, FunctionType):
+                        _recursive_extract(obj)
+            except Exception as e:
+                print(f"Skipped {func_name}: {e}")
+        
+        # _recursive_extract(original_func)
+        _recursive_extract(original_func)
+            
+        return sources
+
+    @staticmethod
+    def _extract_all_function_sources_recursive(
+        func: FunctionType,
+        seen: Set[str] = None
+    ) -> Dict[str, str]:
+        
+        if seen is None:
+            seen = set()
+
+        # NEW: Get the original function if this is a decorated function
+        original_func = func
+        if hasattr(original_func, '__wrapped__'):
+            original_func = original_func.__wrapped__
+            print(f"Found wrapped function: {func.__name__} -> {original_func.__name__}")
+
+        sources = {}
+        
+        def _recursive_extract(current_func: FunctionType):
+            func_name = current_func.__name__
+            
+            # Base case: already processed this function
+            if func_name in seen:
+                return
+            
+            seen.add(func_name)
+            
+            try:
+                src = textwrap.dedent(inspect.getsource(current_func))
+                sources[func_name] = src
+                called_names = FunctionSource._get_called_functions_from_source(src)
+                
+                # Recursive case: process all called functions
+                for called_name in called_names:
+                    obj = FunctionSource._get_function_object_from_scope(current_func, called_name)
+                    if isinstance(obj, FunctionType):
+                        _recursive_extract(obj)  # Recursive call
+                        
+            except Exception as e:
+                print(f"Skipped {func_name}: {e}")
+        
+        _recursive_extract(original_func)
+        return sources
