@@ -207,6 +207,14 @@ async def test_configuration_complete():
     logger.info("✅ ALL CONFIGURATION TESTS COMPLETED!")
     logger.info("="*60)
 
+def test_decorator_function_source():
+    """Test that decorator function source is correctly extracted"""
+    logger.info("🔍 Testing decorator function source...")
+    
+    # Test that we can extract the source code of the decorator function
+    result = test_performance_with_custom_config()
+    logger.info(f"Performance test result: {result}")
+
 
 if __name__ == "__main__":
     """Run configuration tests"""

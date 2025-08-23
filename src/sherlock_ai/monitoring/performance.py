@@ -17,7 +17,7 @@ def log_performance(
     func: F = None,
     *,
     min_duration: float = 0.0,
-    include_args: bool = False,
+    include_args: bool = True,
     log_level: str = "INFO"
 ) -> Union[F, Callable[[F], F]]:
     """

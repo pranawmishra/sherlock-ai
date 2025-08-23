@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.7.1] - 2025-08-24
+
+### Added
+- **AI-Powered Performance Insights**: New `@sherlock_performance_insights` decorator that uses an LLM to analyze performance bottlenecks and provide insights.
+- **Intelligent Source Code Extraction**: The performance insights feature now intelligently extracts only user-defined function source code, excluding the monitoring decorators themselves for more accurate analysis.
+
+### Changed
+- **Performance Analysis**: Performance insights generation now uses a filtered function source to provide more relevant analysis to the user.
+- **Documentation**: Updated `README.md` to include documentation for the new `@sherlock_performance_insights` decorator.
+
+### Fixed
+- **Performance Insights Bug**: Fixed a bug where `generate_performance_insights` was called with a function object instead of a function name and was being incorrectly awaited.
+- **Decorator Source Code Inclusion**: Fixed an issue where the source code of the monitoring decorators was included in the performance analysis payload.
+
 ## [1.6.1] - 2025-07-27
 
 ### Added
@@ -301,3 +315,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.5.0** - Smart code analysis decorator with LLM-powered code review, Groq API integration, and async/sync function support
 - **1.6.0** - MongoDB integration, AI-powered error analysis with Groq API, enhanced error handling with storage capabilities
 - **1.6.1** - Global monitoring decorator with composable decorators, critical bug fixes in error handler, improved decorator composition 
+- **1.7.1** - AI-powered performance insights, intelligent source code extraction, and bug fixes for performance analysis. 

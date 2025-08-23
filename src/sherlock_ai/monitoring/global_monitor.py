@@ -31,7 +31,7 @@ def global_monitor(
     # Performance monitoring parameters
     performance_min_duration: float = 0.0,
     performance_log_level: str = "INFO",
-    include_args: bool = False,
+    include_args: bool = True,
 
     # Global settings
     global_min_duration: float = None,

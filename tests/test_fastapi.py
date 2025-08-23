@@ -5,7 +5,9 @@ from sherlock_ai import get_logger, set_request_id
 import uuid
 from sherlock_ai import log_performance, monitor_memory, monitor_resources, hardcoded_value_detector
 from sherlock_ai.analysis import smart_check
-from sherlock_ai.monitoring import sherlock_error_handler
+from sherlock_ai.monitoring import sherlock_error_handler, sherlock_performance_insights
+import time
+from tests.test_configuration import test_decorator_function_source
 # from tests.helper_nested import helper_nested
 logger = get_logger('ApiLogger')
 
@@ -38,6 +40,15 @@ def create_app():
             return {'message': 'OK'}
         except Exception as e:
             logger.error(f'Error in health check: {e}')
+
+    @app.get('/health-2')
+    @sherlock_performance_insights(latency=3, include_args=True)
+    @log_performance(include_args=True)
+    async def health_check_2():
+        test_decorator_function_source()
+        time.sleep(4)
+        logger.info('Health check 2')
+        return {'message': 'OK'}
 
     @app.get('/greet')
     # @smart_check

@@ -16,6 +16,7 @@ from .context_managers import MemoryTracker, ResourceTracker
 from .resource_monitor import ResourceMonitor
 from .snapshots import ResourceSnapshot, MemorySnapshot
 from .error_insights import sherlock_error_handler
+from .monitoring_insights import sherlock_performance_insights
 from .utils import log_memory_usage, log_resource_usage
 
 # Export public API
@@ -26,6 +27,7 @@ __all__ = [
     "sherlock_error_handler",
     "log_performance",
     "PerformanceTimer",
+    "sherlock_performance_insights",
     
     # Context managers
     "MemoryTracker",

@@ -1,0 +1,142 @@
+@app.get('/health-2')
+@sherlock_performance_insights(latency=3, include_args=True)
+async def health_check_2():
+    time.sleep(4)
+    logger.info('Health check 2')
+    return {'message': 'OK'}
+
+
+def sherlock_performance_insights(
+    func: F = None,
+    *,
+    monitoring_type: str = "function",
+    latency: int = 5,
+    include_args: bool = True,
+    log_level: str = "INFO"
+) -> Union[F, Callable[[F], F]]:
+    """
+    Decorator to generate performance insights.
+
+    Args:
+        func: The function to decorate (when used without parentheses)
+        monitoring_type: The type of monitoring to perform (function, endpoint, etc.)
+        latency: The minimum latency to consider for insights (in seconds)
+        include_args: Whether to include function arguments in the insights
+        log_level: The log level to use for the insights
+
+    Usage:
+        @sherlock_performance_insights(latency=3, include_args=True)
+        def my_function():
+            pass
+    """
+    def decorator(f: F) -> F:
+        @functools.wraps(f)
+        async def async_wrapper(*args, **kwargs):
+            start_time = time.perf_counter()
+            result = await f(*args, **kwargs)
+            end_time = time.perf_counter()
+            duration = end_time - start_time
+            if duration >= latency:
+                async def run_insight_job():
+                    function_source = FunctionSource.extract_all_function_sources_recursive(f)
+                    function_source_str = "\n\n".join(function_source.values())
+                    insights = generate_performance_insights(f.__name__, args, kwargs, duration, function_source_str)
+                    performance_insights_entry = {
+                        "function_name": f.__name__,
+                        # "args": args,
+                        "kwargs": kwargs,
+                        "duration": duration,
+                        "function_source": function_source_str,
+                        "insights": insights
+                    }
+                    mongo_manager.save(performance_insights_entry, "performance-insights")
+
+                asyncio.create_task(run_insight_job())  # Run in background for async functions
+
+            return result
+
+        @functools.wraps(f)
+        def sync_wrapper(*args, **kwargs):
+            start_time = time.perf_counter()
+            result = f(*args, **kwargs)
+            end_time = time.perf_counter()
+            duration = end_time - start_time
+            if duration >= latency:
+                async def run_insight_job():
+                    print("Running insight job")
+                    function_source = FunctionSource.extract_all_function_sources_recursive(f)
+                    function_source_str = "\n\n".join(function_source.values())
+                    insights = generate_performance_insights(f.__name__, args, kwargs, duration, function_source_str)
+                    performance_insights_entry = {
+                        "function_name": f.__name__,
+                        # "args": args,
+                        "kwargs": kwargs,
+                        "duration": duration,
+                        "function_source": function_source_str,
+                        "insights": insights
+                    }
+                    mongo_manager.save(performance_insights_entry, "performance-insights")
+
+                def run_in_executor(): # Run in background for sync functions
+                    # loop = asyncio.new_event_loop()
+                    # asyncio.set_event_loop(loop)
+                    # loop.run_until_complete(run_insight_job())
+                    # loop.close()
+                    asyncio.run(run_insight_job())
+
+
+                with ThreadPoolExecutor() as executor:
+                    executor.submit(run_in_executor)  # Run in background for sync functions
+
+            return result
+
+        return async_wrapper if asyncio.iscoroutinefunction(f) else sync_wrapper
+
+    return decorator if func is None else decorator(func)
+
+
+def generate_performance_insights(function_name: str, args: list, kwargs: dict, duration: float, function_source_str: str):
+    """Generate performance insights using LLM"""
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    response = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that analyzes performance data to generate insights. Keep the insights crisp and to the point."},
+            {"role": "user", "content": f"Function name: {function_name}\nArgs: {args}\nKwargs: {kwargs}\nDuration: {duration}\nFunction source: {function_source_str}"}
+        ]
+    )
+    return response.choices[0].message.content
+
+
+
+@app.get('/health-2')
+@sherlock_performance_insights(latency=3, include_args=True)
+async def health_check_2():
+    test_decorator_function_source()
+    time.sleep(4)
+    logger.info('Health check 2')
+    return {'message': 'OK'}
+
+
+def test_decorator_function_source():
+    """Test that decorator function source is correctly extracted"""
+    logger.info("🔍 Testing decorator function source...")
+
+    # Test that we can extract the source code of the decorator function
+    result = test_performance_with_custom_config()
+    logger.info(f"Performance test result: {result}")
+
+
+@log_performance
+def test_performance_with_custom_config():
+    """Test performance monitoring with custom configuration"""
+    logger.info("⚡ Testing performance monitoring with custom config...")
+
+    # This function itself is being monitored
+    time.sleep(0.05)
+
+    # Test that our performance decorator still works with new config system
+    result = "Performance monitoring works with new config!"
+    logger.info(f"Result: {result}")
+
+    return result
