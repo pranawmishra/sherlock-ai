@@ -24,6 +24,12 @@ class LoggerConfig:
 @dataclass
 class LoggingConfig:
     """Complete logging configuration"""
+
+    auto_instrument: bool = True
+    auto_trace_functions: bool = False
+    auto_frameworks: List[str] = field(default_factory=lambda: ["fastapi"])
+    auto_exclude_modules: List[str] = field(default_factory=lambda: ["sys", "os", "logging"])
+    auto_min_duration: float = 0.0  # Only auto-log functions taking longer than this
     
     # Directory settings
     logs_dir: str = "logs"
@@ -31,7 +37,7 @@ class LoggingConfig:
     # Format settings
     log_format: str = "%(asctime)s - %(request_id)s - %(name)s - %(levelname)s - %(message)s"
     date_format: str = "%Y-%m-%d %H:%M:%S"
-    log_format_type: str = "log"
+    log_format_type: str = "json"
     
     # Console settings
     console_enabled: bool = True
@@ -90,6 +96,7 @@ class LoggingConfig:
             "performance": LogFileConfig(f"{self.logs_dir}/performance{file_extension}"),
             "monitoring": LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}"),
             "error_insights": LogFileConfig(f"{self.logs_dir}/error_insights{file_extension}"),
+            "auto_instrumentation": LogFileConfig(f"{self.logs_dir}/auto_instrumentation{file_extension}"),
         }
 
     def _get_default_loggers(self) -> Dict[str, LoggerConfig]:
@@ -101,6 +108,7 @@ class LoggingConfig:
             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
             "monitoring": LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False),
             "error_insights": LoggerConfig("ErrorInsightsLogger", log_files=["error_insights"], propagate=False),
+            "auto_instrumentation": LoggerConfig("AutoInstrumentationLogger", log_files=["auto_instrumentation"], propagate=False),
         }
 
     def _get_default_external_loggers(self) -> Dict[str, Union[str, int]]:
@@ -171,4 +179,21 @@ class LoggingPresets:
             if key in config.log_files:
                 config.log_files[key].filename = filename
                 
+        return config
+    
+    @staticmethod
+    def auto_instrument_all() -> LoggingConfig:
+        """Full auto-instrumentation - frameworks + function tracing"""
+        config = LoggingConfig()
+        config.auto_instrument = True
+        config.auto_trace_functions = True
+        config.auto_min_duration = 0.001  # 1ms threshold
+        return config
+        
+    @staticmethod
+    def auto_frameworks_only() -> LoggingConfig:
+        """Auto-instrument frameworks only (recommended)"""
+        config = LoggingConfig()
+        config.auto_instrument = True
+        config.auto_trace_functions = False
         return config

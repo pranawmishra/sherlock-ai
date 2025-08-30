@@ -1,4 +1,7 @@
 # app > core > logging_config.py
+from dotenv import load_dotenv
+load_dotenv()
+
 from typing import Optional, Dict, Any
 import logging
 import logging.handlers
@@ -120,6 +123,11 @@ class SherlockAI:
         # Configure external library loggers
         self._configure_external_loggers()
 
+        # 🆕 NEW: Enable auto-instrumentation
+        if self.config.auto_instrument:
+            from .auto import enable_auto_instrumentation
+            enable_auto_instrumentation(self.config)
+
         self.is_configured = True
         return self.config
     
@@ -201,7 +209,7 @@ class SherlockAI:
         return cls._instance
 
 
-def sherlock_ai(config: Optional[LoggingConfig] = None, format_type: str = "log"):
+def sherlock_ai(config: Optional[LoggingConfig] = None, format_type: str = "log", auto_instrument: bool = True):
     """
     Set up logging configuration with full customization support
 
@@ -214,7 +222,7 @@ def sherlock_ai(config: Optional[LoggingConfig] = None, format_type: str = "log"
     global _current_config # Access the global variable
     
     if config is None:
-        config = LoggingConfig(log_format_type=format_type)
+        config = LoggingConfig(log_format_type=format_type, auto_instrument=auto_instrument)
 
     # Create logs directory if it doesn't exist
     logs_dir = Path(config.logs_dir)
@@ -282,6 +290,11 @@ def sherlock_ai(config: Optional[LoggingConfig] = None, format_type: str = "log"
     # Configure external library loggers
     for logger_name, level in config.external_loggers.items():
         logging.getLogger(logger_name).setLevel(level)
+
+    # 🆕 NEW: Enable auto-instrumentation
+    if config.auto_instrument:
+        from .auto import enable_auto_instrumentation
+        enable_auto_instrumentation(config)
 
     # Store the config in the module-level variable
     _current_config = config
