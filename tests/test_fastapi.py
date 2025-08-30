@@ -29,10 +29,10 @@ def create_app():
         return response
 
     @app.get('/health')
-    @log_performance(include_args=True)
+    # @log_performance(include_args=True)
     # @monitor_memory
     # @monitor_resources
-    def health_check():
+    async def health_check():
         try:
             # helper_nested(1)
             logger.info('Health check')
@@ -40,20 +40,21 @@ def create_app():
             return {'message': 'OK'}
         except Exception as e:
             logger.error(f'Error in health check: {e}')
+            raise
 
     @app.get('/health-2')
-    @sherlock_performance_insights(latency=3, include_args=True)
-    @log_performance(include_args=True)
+    # @sherlock_performance_insights(latency=3, include_args=True)
+    # @log_performance(include_args=True)
     async def health_check_2():
         test_decorator_function_source()
-        time.sleep(4)
+        time.sleep(6)
         logger.info('Health check 2')
         return {'message': 'OK'}
 
     @app.get('/greet')
     # @smart_check
     # @sherlock_error_handler
-    @log_performance(include_args=True)
+    # @log_performance(include_args=True)
     async def greet_user(name: str):
         greeting = 'Hello, World!'
         timeout = 60

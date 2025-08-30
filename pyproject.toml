@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sherlock-ai"
-version = "1.7.1"
+version = "1.8.0"
 description = "A Python package for performance monitoring, logging utilities, and code analysis"
 readme = "README.md"
 requires-python = ">=3.8"

@@ -158,10 +158,11 @@ class FunctionSource:
         # original_func = func
         def unwrap_function(func):
             seen = set()
-            while hasattr(func, '__wrapped__') and func not in seen:
-                seen.add(func)
-                original_func = func.__wrapped__
-            print(f"Found wrapped function: {func.__name__} -> {original_func.__name__}")
+            original_func = func
+            while hasattr(original_func, '__wrapped__') and original_func not in seen:
+                seen.add(original_func)
+                original_func = original_func.__wrapped__
+            # print(f"Found wrapped function: {func.__name__} -> {original_func.__name__}")
             return original_func
         original_func = unwrap_function(func)
 

@@ -27,6 +27,7 @@ A Python package for performance monitoring and logging utilities that helps you
 - 🗄️ **MongoDB Integration**: Automatic error insights storage with MongoDB support
 - 🚨 **Error Analysis**: AI-powered error analysis with automatic probable cause detection
 - 💡 **Performance Insights**: AI-powered performance analysis that intelligently extracts user-defined function source code.
+- 🔄 **Auto-Instrumentation**: Zero-code setup for popular frameworks like FastAPI, automatically instrumenting routes with monitoring decorators.
 
 ## Installation
 
@@ -101,6 +102,55 @@ with SherlockAI() as temp_logger:
     logger.info("This uses temporary configuration")
 # Automatically cleaned up
 ```
+
+### Auto-Instrumentation (Sentry-Style Setup)
+
+Sherlock AI now supports automatic instrumentation for supported frameworks like FastAPI. This allows you to get comprehensive monitoring with a zero-code setup, without needing to add decorators to every route.
+
+**How it Works:**
+When enabled, Sherlock AI will "monkey-patch" the framework's routing methods. This means it automatically wraps your endpoint functions with the standard suite of monitoring decorators (`log_performance`, `monitor_memory`, `monitor_resources`, `sherlock_error_handler`) at runtime.
+
+**Example Setup for FastAPI:**
+
+```python
+# main.py
+from fastapi import FastAPI
+from sherlock_ai import SherlockAI, LoggingConfig, get_logger
+
+# 1. Initialize Sherlock AI with auto-instrumentation enabled
+# This should be done BEFORE the FastAPI app is created.
+config = LoggingConfig(
+    auto_instrument=True, # default 
+    log_format_type="json" # default
+)
+logging_manager = SherlockAI(config=config)
+logging_manager.setup()
+
+logger = get_logger(__name__)
+
+# 2. Create your FastAPI app as usual
+app = FastAPI()
+
+# 3. Define your routes WITHOUT any manual decorators
+@app.get("/health")
+def health_check():
+    # This endpoint is now automatically monitored for:
+    # - Performance
+    # - Memory Usage
+    # - Resource Consumption
+    # - Error Insights
+    logger.info("Health check endpoint was called.")
+    return {"status": "healthy"}
+
+@app.get("/error")
+def trigger_error():
+    # Errors in this endpoint will also be captured automatically
+    # and sent for AI analysis.
+    result = 1 / 0
+    return {"result": result}
+```
+
+With this setup, you no longer need to manually decorate each FastAPI route, simplifying your code while still getting the full benefits of Sherlock AI's monitoring capabilities.
 
 ### Using Logger Name Constants
 

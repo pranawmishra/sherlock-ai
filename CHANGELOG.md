@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.8.0] - 2025-08-30
+
+### Added
+- **Auto-Instrumentation**: Implemented Sentry-style zero-code auto-instrumentation for supported frameworks like FastAPI.
+- **Framework Patcher**: Added a monkey-patching mechanism to automatically apply the full suite of monitoring decorators (`log_performance`, `monitor_memory`, `monitor_resources`, `sherlock_error_handler`) to framework routes at runtime.
+- **Configuration Flag**: Introduced the `auto_instrument` boolean flag in `LoggingConfig` to easily enable or disable the auto-instrumentation feature.
+
+### Changed
+- **Initialization Logic**: The `SherlockAI.setup()` and `sherlock_ai()` functions now automatically trigger the auto-instrumentation process when the feature is enabled in the configuration.
+
+### Improved
+- **Developer Experience**: Drastically simplifies the setup for monitoring web applications by removing the need to manually add decorators to every endpoint.
+- **Code Maintainability**: Reduces boilerplate code within user applications, leading to cleaner and more readable route definitions.
+
 ## [1.7.1] - 2025-08-24
 
 ### Added
@@ -316,3 +330,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.6.0** - MongoDB integration, AI-powered error analysis with Groq API, enhanced error handling with storage capabilities
 - **1.6.1** - Global monitoring decorator with composable decorators, critical bug fixes in error handler, improved decorator composition 
 - **1.7.1** - AI-powered performance insights, intelligent source code extraction, and bug fixes for performance analysis. 
+- **1.8.0** - Sentry style Auto-Instrumentation techniques to simplify and patch all the decoratos in background without need ing to add the decorator on each of the endpoint
