@@ -25,6 +25,7 @@ A Python package for performance monitoring and logging utilities that helps you
 - 📋 **JSON Format Support**: Choose between standard log format or structured JSON output for better parsing and analysis
 - 🔍 **Code Analysis**: Automatic detection and refactoring of hardcoded values using AST parsing and LLM suggestions
 - 🗄️ **MongoDB Integration**: Automatic error insights storage with MongoDB support
+- 🌐 **API Client Integration**: HTTP-based data ingestion to centralized backend services
 - 🚨 **Error Analysis**: AI-powered error analysis with automatic probable cause detection
 - 💡 **Performance Insights**: AI-powered performance analysis that intelligently extracts user-defined function source code.
 - 🔄 **Auto-Instrumentation**: Zero-code setup for popular frameworks like FastAPI, automatically instrumenting routes with monitoring decorators.
@@ -399,7 +400,80 @@ error_data = {
 mongo.save(error_data)
 ```
 
-## Code Analysis and Refactoring
+## API Client Integration
+
+### HTTP-Based Data Ingestion
+
+Sherlock AI now supports HTTP-based data ingestion to centralized backend services, providing a more scalable and distributed architecture for monitoring data collection.
+
+```python
+from sherlock_ai.monitoring import sherlock_error_handler, sherlock_performance_insights
+import os
+
+# Set up API client configuration
+os.environ["SHERLOCK_AI_API_KEY"] = "your-api-key-here"
+
+@sherlock_error_handler
+@sherlock_performance_insights
+def monitored_function():
+    # Any errors and performance insights will be automatically sent to the backend API
+    # instead of being stored locally in MongoDB
+    result = complex_operation()
+    return result
+
+# Data is automatically sent to:
+# - Error insights: POST /v1/logs/injest-error-insights
+# - Performance insights: POST /v1/logs/injest-performance-insights
+```
+
+### API Client Configuration
+
+Configure the API client for backend integration:
+
+```python
+from sherlock_ai.storage import ApiClient
+
+# Initialize API client (requires SHERLOCK_AI_API_KEY environment variable)
+api_client = ApiClient()
+
+# Manual data submission
+error_data = {
+    "function_name": "my_function",
+    "error_message": "Division by zero",
+    "stack_trace": "...",
+    "probable_cause": "AI analysis result"
+}
+
+api_client.post_error_insights(error_data)
+
+performance_data = {
+    "function_name": "my_function",
+    "duration": 2.5,
+    "function_source": "...",
+    "insights": "AI performance analysis"
+}
+
+api_client.post_performance_insights(performance_data)
+```
+
+### Environment Configuration
+
+Set up environment variables for API client:
+
+```bash
+# Required: API key for authentication
+export SHERLOCK_AI_API_KEY="your-api-key-here"
+
+# Optional: Custom API base URL (default: http://localhost:8000/v1/logs)
+export SHERLOCK_AI_API_BASE_URL="https://your-backend.com/api/v1"
+```
+
+**Features:**
+- **HTTP-based Architecture**: Send monitoring data to centralized backend services
+- **API Key Authentication**: Secure data transmission with API key authentication
+- **Automatic Integration**: Seamlessly integrates with existing decorators
+- **Dual Storage Support**: Can work alongside MongoDB for hybrid storage solutions
+- **Configurable Endpoints**: Customizable API endpoints for different backend services
 
 ### Automatic Hardcoded Value Detection
 
@@ -981,6 +1055,21 @@ Manage MongoDB connections and error insight storage.
 - `save(data)`: Save error insight data to MongoDB collection
 - `enabled` (bool): Property indicating if MongoDB backend is configured and available
 
+### `ApiClient` Class
+
+Manage HTTP-based data ingestion to centralized backend services.
+
+**Constructor Parameters:**
+- Requires `SHERLOCK_AI_API_KEY` environment variable for authentication
+
+**Methods:**
+- `post_error_insights(data)`: Send error insight data to backend API
+- `post_performance_insights(data)`: Send performance insight data to backend API
+
+**Configuration:**
+- `SHERLOCK_AI_API_KEY`: Required API key for authentication
+- `SHERLOCK_AI_API_BASE_URL`: Optional base URL (default: "http://localhost:8000/v1/logs")
+
 ### `@sherlock_performance_insights` Decorator
 
 Automatically analyze performance bottlenecks with AI and store insights in MongoDB.
@@ -992,9 +1081,9 @@ Features:
 - Intelligently extracts only user-defined function source code for analysis
 
 **Storage Details:**
-- Database: `sherlock-meta`
-- Collection: `error-insights`, `performance-insights`
-- Automatic connection management
+- **MongoDB**: Database: `sherlock-meta`, Collections: `error-insights`, `performance-insights`
+- **API Client**: HTTP endpoints for centralized data ingestion
+- Automatic connection management for both storage options
 
 ## Configuration
 
@@ -1172,6 +1261,8 @@ request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
 - **Legacy Code Modernization**: Systematically identify and extract constants from existing codebases
 - **Error Analysis & Debugging**: AI-powered error analysis with automatic storage for pattern recognition
 - **Production Error Tracking**: MongoDB-based error insight storage for production monitoring and debugging
+- **Distributed Monitoring**: HTTP-based data ingestion for centralized monitoring across multiple services
+- **Hybrid Storage Solutions**: Combine MongoDB and API client for flexible data storage strategies
 
 ## Requirements
 
@@ -1180,6 +1271,7 @@ request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
 - **astor** >= 0.8.1 (for AST to source code conversion in code analysis)
 - **groq** >= 0.30.0 (for LLM-based analysis and constant naming)
 - **pymongo** >= 4.0.0 (for MongoDB error insight storage)
+- **requests** >= 2.32.4 (for HTTP-based API client integration)
 - Standard library for basic performance monitoring
 
 ## License

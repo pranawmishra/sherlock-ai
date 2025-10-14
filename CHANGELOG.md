@@ -16,6 +16,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.9.0] - 2025-01-15
+
+### Added
+- **API Client Integration**: New `ApiClient` class for HTTP-based data ingestion to centralized backend services
+- **HTTP-Based Architecture**: Support for sending monitoring data via HTTP API calls instead of local storage
+- **API Key Authentication**: Secure data transmission with API key authentication using `SHERLOCK_AI_API_KEY` environment variable
+- **Configurable Endpoints**: Customizable API endpoints for different backend services
+- **Dual Storage Support**: Ability to use both MongoDB and API client for hybrid storage solutions
+
+### Changed
+- **Data Ingestion Method**: `@sherlock_error_handler` and `@sherlock_performance_insights` decorators now use API client by default
+- **Storage Architecture**: Migrated from MongoDB-only storage to HTTP-based centralized data ingestion
+- **Configuration**: Added new environment variables for API client configuration
+- **Dependencies**: Added `requests>=2.32.4` dependency for HTTP-based API client integration
+
+### Improved
+- **Scalability**: HTTP-based architecture enables better scalability for distributed monitoring systems
+- **Centralized Management**: Monitoring data can now be sent to centralized backend services for better management
+- **Flexibility**: Users can choose between MongoDB, API client, or both storage methods
+- **Integration**: Seamless integration with existing decorators without code changes
+
+### Infrastructure
+- **Backend Integration**: Prepared foundation for centralized backend service integration
+- **API Endpoints**: Defined standard API endpoints for error insights and performance insights ingestion
+- **Environment Configuration**: Added support for configurable API base URLs and authentication
+
 ## [1.8.0] - 2025-08-30
 
 ### Added
@@ -331,3 +357,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.6.1** - Global monitoring decorator with composable decorators, critical bug fixes in error handler, improved decorator composition 
 - **1.7.1** - AI-powered performance insights, intelligent source code extraction, and bug fixes for performance analysis. 
 - **1.8.0** - Sentry style Auto-Instrumentation techniques to simplify and patch all the decoratos in background without need ing to add the decorator on each of the endpoint
+- **1.9.0** - API Client Integration with HTTP-based data ingestion, centralized backend service support, and dual storage capabilities
