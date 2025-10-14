@@ -11,10 +11,11 @@ import time
 from .utils import generate_performance_insights, FunctionSource
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from ..storage import api_client
 
 F = TypeVar("F", bound=Callable[..., Any])
 
-mongo_manager = MongoManager()
+# mongo_manager = MongoManager()
 
 def sherlock_performance_insights(
     func: F = None,
@@ -59,9 +60,10 @@ def sherlock_performance_insights(
                         "duration": duration,
                         "function_source": function_source_str,
                         "insights": insights,
-                        "created_at": datetime.now(timezone.utc) # get local time
+                        # "created_at": datetime.now(timezone.utc) # get local time
                     }
-                    mongo_manager.save(performance_insights_entry, "performance-insights")
+                    # mongo_manager.save(performance_insights_entry, "performance-insights")
+                    api_client.post_performance_insights(performance_insights_entry)
 
                 asyncio.create_task(run_insight_job())  # Run in background for async functions
 
@@ -87,9 +89,10 @@ def sherlock_performance_insights(
                         "duration": duration,
                         "function_source": function_source_str,
                         "insights": insights,
-                        "created_at": datetime.now(timezone.utc) # get local time
+                        # "created_at": datetime.now(timezone.utc) # get local time
                     }
-                    mongo_manager.save(performance_insights_entry, "performance-insights")
+                    # mongo_manager.save(performance_insights_entry, "performance-insights")
+                    api_client.post_performance_insights(performance_insights_entry)
 
                 def run_in_executor(): # Run in background for sync functions
                     # loop = asyncio.new_event_loop()
