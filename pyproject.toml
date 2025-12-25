@@ -4,14 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sherlock-ai"
-version = "1.9.0"
+version = "1.10.0"
 description = "A Python package for performance monitoring, logging utilities, and code analysis"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Pranaw Mishra", email = "pranawmishra73@gmail.com"},
-    {name = "Kunal Aggarwal", email = "aggarwalkunu263@gmail.com"}
+    {name = "Pranaw Mishra", email = "pranawmishra73@gmail.com"}
 ]
 keywords = ["performance", "monitoring", "logging", "debugging", "profiling", "analysis"]
 classifiers = [

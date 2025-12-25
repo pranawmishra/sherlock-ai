@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.10.0] - 2025-12-25
+
+### Reverted
+- **API Client Integration in Error Insights**: Reverted `@sherlock_error_handler` decorator to use MongoDB storage instead of API client
+- **API Client Integration in Performance Insights**: Reverted `@sherlock_performance_insights` decorator to use MongoDB storage instead of API client
+- **Storage Method**: Rolled back HTTP-based data ingestion to MongoDB-based local storage for error and performance insights
+
+### Changed
+- **Data Ingestion Method**: `@sherlock_error_handler` and `@sherlock_performance_insights` decorators now use MongoDB storage by default (reverted from v1.9.0)
+- **Storage Architecture**: Restored MongoDB-based storage as the primary storage method for insights data
+
 ## [1.9.0] - 2025-01-15
 
 ### Added
@@ -358,3 +369,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.7.1** - AI-powered performance insights, intelligent source code extraction, and bug fixes for performance analysis. 
 - **1.8.0** - Sentry style Auto-Instrumentation techniques to simplify and patch all the decoratos in background without need ing to add the decorator on each of the endpoint
 - **1.9.0** - API Client Integration with HTTP-based data ingestion, centralized backend service support, and dual storage capabilities
+- **1.10.0** - Reverted API Client integration in error and performance insights decorators, restored MongoDB as primary storage method
