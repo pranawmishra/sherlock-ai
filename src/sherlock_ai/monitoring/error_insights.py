@@ -6,14 +6,14 @@ from typing import Union
 from .utils import get_llm_cause
 import logging
 import asyncio
-from ..storage import MongoManager, api_client
+from ..storage import MongoManager#, api_client
 
 # Type variable for better type hints
 F = TypeVar("F", bound=Callable[..., Any])
 
 logger = logging.getLogger("ErrorInsightsLogger")
 
-# mongo_manager = MongoManager()
+mongo_manager = MongoManager()
 
 def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
     def decorator(f: F) -> F:
@@ -38,8 +38,8 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 }
 
                 # Save to MongoDB:
-                # mongo_manager.save(log_entry, "error-insights")
-                api_client.post_error_insights(log_entry)
+                mongo_manager.save(log_entry, "error-insights")
+                # api_client.post_error_insights(log_entry)
 
                 logger.info(probable_cause)
                 # Re-raise or handle as needed
@@ -65,8 +65,8 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 }
 
                 # Save to MongoDB:
-                # mongo_manager.save(log_entry, "error-insights")
-                api_client.post_error_insights(log_entry)
+                mongo_manager.save(log_entry, "error-insights")
+                # api_client.post_error_insights(log_entry)
                 logger.info(probable_cause)
                 # Re-raise or handle as needed
                 # raise e
