@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.10.1] - 2025-12-25
+- **API Client**: Removed SherlockAI API Functionality
+
 ## [1.10.0] - 2025-12-25
 
 ### Reverted
@@ -27,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Data Ingestion Method**: `@sherlock_error_handler` and `@sherlock_performance_insights` decorators now use MongoDB storage by default (reverted from v1.9.0)
 - **Storage Architecture**: Restored MongoDB-based storage as the primary storage method for insights data
 
-## [1.9.0] - 2025-01-15
+## [1.9.0] - 2025-10-15
 
 ### Added
 - **API Client Integration**: New `ApiClient` class for HTTP-based data ingestion to centralized backend services
@@ -370,3 +373,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.8.0** - Sentry style Auto-Instrumentation techniques to simplify and patch all the decoratos in background without need ing to add the decorator on each of the endpoint
 - **1.9.0** - API Client Integration with HTTP-based data ingestion, centralized backend service support, and dual storage capabilities
 - **1.10.0** - Reverted API Client integration in error and performance insights decorators, restored MongoDB as primary storage method
+- **1.10.1** - Removed API Key functionality
