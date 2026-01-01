@@ -2,10 +2,13 @@ import ast
 import os
 import re
 import logging
-from groq import Groq
+from ..storage import GroqManager
 
 # Set up logging for debugging
 logger = logging.getLogger("MonitoringLogger")
+
+# Initialize GroqManager once at module level
+groq_manager = GroqManager()
 
 class CodeAnalyzer:
     """A class to analyze Python code, detect hardcoded values, suggest constant names, append to constants.py, and modify source code."""
@@ -17,14 +20,9 @@ class CodeAnalyzer:
             api_key (str, optional): Groq API key for LLM-based constant naming. Defaults to None.
             constants_file (str, optional): Path to constants.py. Defaults to 'constants.py' in current directory.
         """
-        self.api_key = os.getenv("GROQ_API_KEY")
-        if not self.api_key:
-            print(
-                "Groq API key not found. Set GROQ_API_KEY environment variable for descriptive LLM-based "
-                "constant names (e.g., GREETING_MESSAGE, API_URL). Falling back to heuristic names "
-                "(e.g., HELLO_WORLD, URL_HTTPS_EXAMPLE_COM). Run: $env:GROQ_API_KEY='your-api-key' in PowerShell."
-            )
-        self.model = "llama3-70b-8192"
+        # Use the shared groq_manager
+        self.groq_manager = groq_manager
+        # self.model = "llama3-70b-8192"
         self.constants_file = constants_file or os.path.join(os.getcwd(), "constants.py")
 
     @staticmethod
@@ -109,7 +107,7 @@ class CodeAnalyzer:
                 value = f"NUM_{value}" if not value.startswith("NUM_") else value
             return value[:30]
 
-        if self.api_key:
+        if self.groq_manager.enabled:
             try:
                 llm_name = self.suggest_constant_name_with_llm(value, context)
                 if llm_name:
@@ -133,7 +131,6 @@ class CodeAnalyzer:
         Returns:
             str: Suggested constant name or None if invalid.
         """
-        client = Groq(api_key=self.api_key)
         prompt = f"""
 You are a code analysis assistant tasked with suggesting a meaningful constant name for a hardcoded value in Python code.
 
@@ -148,9 +145,9 @@ Return only the suggested constant name, nothing else.
 """
         
         try:
-            chat_completion = client.chat.completions.create(
+            chat_completion = self.groq_manager.client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
-                model=self.model,
+                model=self.groq_manager.analysis_model,
                 max_tokens=50,
                 temperature=0.2,
             )

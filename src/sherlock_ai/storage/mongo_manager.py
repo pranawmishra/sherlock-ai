@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import os
 from typing import Literal
+import warnings
 
 class MongoManager:
     def __init__(self, mongo_uri=None):
@@ -19,7 +20,17 @@ class MongoManager:
         else:
             self.client = None
             self.enabled = False
-            # print("ℹ️ MongoDB backend not configured.")
+            # Set collections to None when MongoDB is not configured
+            self.collection_error_insights = None
+            self.collection_performance_insights = None
+            # Show warning to user
+            # Show warning to user
+            warnings.warn(
+                "MongoDB URI not configured. Data will not be persisted to MongoDB. "
+                "Set MONGO_URI environment variable to enable MongoDB storage.",
+                UserWarning,
+                # stacklevel=2
+            )
 
         self.collection_map = {
             "error-insights": self.collection_error_insights,

@@ -16,6 +16,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.11.0] - 2026-01-01
+
+### Added
+- **GroqManager Class**: New centralized manager for Groq API client configuration and model management
+- **Centralized Model Configuration**: Single source of truth for LLM model names with `DEFAULT_MODEL` and `ANALYSIS_MODEL` constants
+- **Graceful Degradation**: Application now handles missing MONGO_URI and GROQ_API_KEY gracefully without crashing
+- **User-Friendly Warnings**: Clear warning messages when optional services (MongoDB, Groq API) are not configured
+- **Storage Module Enhancement**: Extended storage module to include both MongoDB and Groq API management
+
+### Changed
+- **MongoManager**: Enhanced to set collection attributes to None when MongoDB URI is missing, preventing AttributeError
+- **Model Name Management**: Replaced hardcoded model names across codebase with centralized constants from GroqManager
+- **API Client Initialization**: All Groq API calls now use centralized GroqManager instead of scattered initialization
+- **Error Handling**: Improved error handling to provide graceful fallbacks when optional dependencies are unavailable
+- **Code Organization**: Consolidated API configuration logic into storage module for better maintainability
+
+### Improved
+- **Developer Experience**: Clear, actionable warning messages guide users on how to configure optional services
+- **Configuration Management**: Single place to update model names and API settings across entire application
+- **Code Maintainability**: Eliminated duplicate API initialization code across multiple modules
+- **Resilience**: Application continues to function with reduced features when optional services unavailable
+
+### Fixed
+- **MongoDB URI Missing**: Fixed AttributeError crash when MONGO_URI environment variable is not set
+- **Groq API Key Missing**: Fixed crashes in code analysis and monitoring features when GROQ_API_KEY is missing
+- **Warning Consistency**: Standardized warning format using Python's warnings module for both MongoDB and Groq
+
+### Modified Files
+- `src/sherlock_ai/storage/mongo_manager.py` - Added graceful handling and warnings for missing MongoDB URI
+- `src/sherlock_ai/storage/groq_manager.py` - New file for centralized Groq API management
+- `src/sherlock_ai/storage/__init__.py` - Export GroqManager class
+- `src/sherlock_ai/monitoring/utils.py` - Use GroqManager and centralized model names
+- `src/sherlock_ai/analysis/smart_check_code.py` - Use GroqManager and centralized model names
+- `src/sherlock_ai/analysis/code_analyzer.py` - Use GroqManager and centralized model names
+
 ## [1.10.1] - 2025-12-25
 - **API Client**: Removed SherlockAI API Functionality
 
@@ -374,3 +409,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.9.0** - API Client Integration with HTTP-based data ingestion, centralized backend service support, and dual storage capabilities
 - **1.10.0** - Reverted API Client integration in error and performance insights decorators, restored MongoDB as primary storage method
 - **1.10.1** - Removed API Key functionality
+- **1.11.0** - Centralized configuration management with GroqManager, graceful degradation for missing API keys, and improved error handling
