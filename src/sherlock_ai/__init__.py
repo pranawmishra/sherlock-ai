@@ -2,7 +2,7 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.11.0"
+__version__ = "1.12.0"
 
 # Import main components for easy access
 from .logging_setup import sherlock_ai, get_logger, get_logging_stats, get_current_config, SherlockAI
@@ -29,6 +29,7 @@ class LoggerNames:
     PERFORMANCE = "PerformanceLogger"
     MONITORING = "MonitoringLogger"
     ERRORINSIGHTS = "ErrorInsightsLogger"
+    PERFORMANCEINSIGHTS = "PerformanceInsightsLogger"
     AUTO_INSTRUMENTATION = "AutoInstrumentationLogger"
 # ✅ Convenience function
 def list_available_loggers():
@@ -40,6 +41,7 @@ def list_available_loggers():
         LoggerNames.PERFORMANCE,
         LoggerNames.MONITORING,
         LoggerNames.ERRORINSIGHTS,
+        LoggerNames.PERFORMANCEINSIGHTS,
         LoggerNames.AUTO_INSTRUMENTATION
     ]
 

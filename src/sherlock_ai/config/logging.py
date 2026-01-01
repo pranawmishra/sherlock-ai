@@ -96,6 +96,7 @@ class LoggingConfig:
             "performance": LogFileConfig(f"{self.logs_dir}/performance{file_extension}"),
             "monitoring": LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}"),
             "error_insights": LogFileConfig(f"{self.logs_dir}/error_insights{file_extension}"),
+            "performance_insights": LogFileConfig(f"{self.logs_dir}/performance_insights{file_extension}"),
             "auto_instrumentation": LogFileConfig(f"{self.logs_dir}/auto_instrumentation{file_extension}"),
         }
 
@@ -108,6 +109,7 @@ class LoggingConfig:
             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
             "monitoring": LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False),
             "error_insights": LoggerConfig("ErrorInsightsLogger", log_files=["error_insights"], propagate=False),
+            "performance_insights": LoggerConfig("PerformanceInsightsLogger", log_files=["performance_insights"], propagate=False),
             "auto_instrumentation": LoggerConfig("AutoInstrumentationLogger", log_files=["auto_instrumentation"], propagate=False),
         }
 

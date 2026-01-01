@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.12.0] - 2026-01-01
+
+### Added
+- **Performance Insights Logger**: New dedicated `PerformanceInsightsLogger` for better separation of performance insights logging
+- **Logger Name Constant**: Added `PERFORMANCEINSIGHTS` constant to `LoggerNames` class for easier logger access
+
+### Changed
+- **Logger Organization**: Performance insights now use a dedicated logger separate from the general monitoring logger
+- **Version Bump**: Updated package version to 1.12.0
+
+### Improved
+- **Logging Clarity**: Better separation of concerns with dedicated logger for performance insights
+- **Developer Experience**: Easier to filter and manage performance insights logs separately from other monitoring logs
+
 ## [1.11.0] - 2026-01-01
 
 ### Added
@@ -410,3 +424,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.10.0** - Reverted API Client integration in error and performance insights decorators, restored MongoDB as primary storage method
 - **1.10.1** - Removed API Key functionality
 - **1.11.0** - Centralized configuration management with GroqManager, graceful degradation for missing API keys, and improved error handling
+- **1.12.0** - Added dedicated PerformanceInsightsLogger for better logging organization and separation of concerns
