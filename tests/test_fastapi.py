@@ -46,7 +46,7 @@ def create_app():
     # @sherlock_performance_insights(latency=3, include_args=True)
     # @log_performance(include_args=True)
     async def health_check_2():
-        test_decorator_function_source()
+        # test_decorator_function_source()
         time.sleep(6)
         logger.info('Health check 2')
         return {'message': 'OK'}
