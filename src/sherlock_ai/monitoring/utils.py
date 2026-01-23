@@ -13,12 +13,14 @@ from typing import Dict, Set
 
 from .snapshots import ResourceSnapshot, MemorySnapshot
 from .resource_monitor import ResourceMonitor
-from ..storage import GroqManager
+# from ..storage import GroqManager
+from ..providers import get_provider
 
 logger = logging.getLogger("MonitoringLogger")
 
 # Initialize GroqManager once at module level
-groq_manager = GroqManager()
+# groq_manager = GroqManager()
+llm_provider = get_provider()
 
 # Helper functions for logging
 def log_memory_usage(function_name: str, start_memory: MemorySnapshot, end_memory: MemorySnapshot,
@@ -88,39 +90,51 @@ def log_resource_usage(function_name: str, start_resources: Optional[ResourceSna
     log_method = getattr(logger, log_level.lower())
     log_method(log_msg)
 
-def get_llm_cause(error_message: str, stack_trace: str):
+def generate_error_insights(error_message: str, stack_trace: str):
     """Get the probable cause of an error using LLM"""
-    if not groq_manager.enabled:
+    if not llm_provider.enabled:
         return None
-    try:
-        response = groq_manager.client.chat.completions.create(
-            model=groq_manager.default_model,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that analyzes error messages and stack traces to determine the probable cause of an error. Keep the reason and solution crisp and to the point."},
-                {"role": "user", "content": f"Error message: {error_message}\nStack trace: {stack_trace}"}
-            ]
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        logger.error(f"Error in LLM call for error cause analysis: {e}")
-        return None
+    return llm_provider.chat_completion(
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that analyzes error messages and stack traces to determine the probable cause of an error. Keep the reason and solution crisp and to the point."},
+            {"role": "user", "content": f"Error message: {error_message}\nStack trace: {stack_trace}"}
+        ]
+    )
+    # try:
+    #     response = groq_manager.client.chat.completions.create(
+    #         model=groq_manager.default_model,
+    #         messages=[
+    #             {"role": "system", "content": "You are a helpful assistant that analyzes error messages and stack traces to determine the probable cause of an error. Keep the reason and solution crisp and to the point."},
+    #             {"role": "user", "content": f"Error message: {error_message}\nStack trace: {stack_trace}"}
+    #         ]
+    #     )
+    #     return response.choices[0].message.content
+    # except Exception as e:
+    #     logger.error(f"Error in LLM call for error cause analysis: {e}")
+    #     return None
 
 def generate_performance_insights(function_name: str, args: list, kwargs: dict, duration: float, function_source_str: str):
     """Generate performance insights using LLM"""
-    if not groq_manager.enabled:
+    if not llm_provider.enabled:
         return None
-    try:
-        response = groq_manager.client.chat.completions.create(
-            model=groq_manager.default_model,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that analyzes performance data to generate insights. Keep the insights crisp and to the point."},
-                {"role": "user", "content": f"Function name: {function_name}\nArgs: {args}\nKwargs: {kwargs}\nDuration: {duration}\nFunction source: {function_source_str}"}
-            ]
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        logger.error(f"Error in LLM call for performance insights: {e}")
-        return None
+    return llm_provider.chat_completion(
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that analyzes performance data to generate insights. Keep the insights crisp and to the point."},
+            {"role": "user", "content": f"Function name: {function_name}\nArgs: {args}\nKwargs: {kwargs}\nDuration: {duration}\nFunction source: {function_source_str}"}
+        ]
+    )
+    # try:
+    #     response = groq_manager.client.chat.completions.create(
+    #         model=groq_manager.default_model,
+    #         messages=[
+    #             {"role": "system", "content": "You are a helpful assistant that analyzes performance data to generate insights. Keep the insights crisp and to the point."},
+    #             {"role": "user", "content": f"Function name: {function_name}\nArgs: {args}\nKwargs: {kwargs}\nDuration: {duration}\nFunction source: {function_source_str}"}
+    #         ]
+    #     )
+    #     return response.choices[0].message.content
+    # except Exception as e:
+    #     logger.error(f"Error in LLM call for performance insights: {e}")
+    #     return None
 
 class FunctionSource:
 

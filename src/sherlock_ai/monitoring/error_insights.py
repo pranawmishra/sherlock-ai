@@ -3,7 +3,7 @@ import traceback
 import inspect
 from typing import Callable, TypeVar, Any
 from typing import Union
-from .utils import get_llm_cause
+from .utils import generate_error_insights
 import logging
 import asyncio
 from ..storage import MongoManager#, api_client
@@ -27,7 +27,7 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 stack = traceback.format_exc()
 
                 # Call LLM to analyze the error:
-                probable_cause = get_llm_cause(error_message, stack)
+                probable_cause = generate_error_insights(error_message, stack)
 
                 # Prepare log entry:
                 log_entry = {
@@ -54,7 +54,7 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 stack = traceback.format_exc()
 
                 # Call LLM to analyze the error:
-                probable_cause = get_llm_cause(error_message, stack)
+                probable_cause = generate_error_insights(error_message, stack)
 
                 # Prepare log entry:
                 log_entry = {
