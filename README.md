@@ -29,6 +29,7 @@ A Python package for performance monitoring and logging utilities that helps you
 - 🚨 **Error Analysis**: AI-powered error analysis with automatic probable cause detection
 - 💡 **Performance Insights**: AI-powered performance analysis that intelligently extracts user-defined function source code.
 - 🔄 **Auto-Instrumentation**: Zero-code setup for popular frameworks like FastAPI, automatically instrumenting routes with monitoring decorators.
+- 🤖 **Multi-LLM Support**: Flexible LLM provider system supporting Groq and Azure OpenAI for AI-powered features.
 
 ## Installation
 
@@ -473,6 +474,64 @@ export SHERLOCK_AI_API_BASE_URL="https://your-backend.com/api/v1"
 - **Automatic Integration**: Seamlessly integrates with existing decorators
 - **Dual Storage Support**: Can work alongside MongoDB for hybrid storage solutions
 - **Configurable Endpoints**: Customizable API endpoints for different backend services
+
+## LLM Provider Configuration
+
+Sherlock AI supports multiple LLM providers for AI-powered features like error analysis, performance insights, and code analysis. Choose the provider that best fits your infrastructure.
+
+### Supported Providers
+
+- **Groq** (default) - Fast inference with open-source models
+- **Azure OpenAI** - Enterprise-grade OpenAI models on Azure
+
+### Using Groq (Default)
+
+Groq is the default provider and requires only an API key:
+
+```python
+# Set Groq API key
+os.environ["GROQ_API_KEY"] = "your-groq-api-key"
+
+
+**Environment Variables:**
+```bash
+export GROQ_API_KEY="your-groq-api-key"
+```
+
+### Using Azure OpenAI
+
+To use Azure OpenAI instead of Groq:
+
+```python
+# Configure Azure OpenAI
+os.environ["LLM_PROVIDER"] = "azure_openai"
+os.environ["AZURE_OPENAI_API_KEY"] = "your-azure-key"
+os.environ["AZURE_OPENAI_ENDPOINT"] = "https://your-resource.openai.azure.com/"
+os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"] = "gpt-4-turbo"
+
+```
+
+**Environment Variables:**
+```bash
+# Required
+export LLM_PROVIDER="azure_openai"
+export AZURE_OPENAI_API_KEY="your-azure-openai-key"
+export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
+export AZURE_OPENAI_DEPLOYMENT_NAME="gpt-4-turbo"
+
+# Optional (defaults to 2024-02-15-preview)
+export AZURE_OPENAI_API_VERSION="2024-02-15-preview"
+```
+
+### LLM Provider Comparison
+
+| Feature | Groq | Azure OpenAI |
+|---------|------|--------------|
+| Setup Complexity | Simple (1 env var) | Moderate (4 env vars) |
+| Cost | Pay-per-use | Enterprise pricing |
+| Models | Open-source models | GPT-3.5, GPT-4, GPT-4 Turbo |
+| Performance | Very fast inference | Standard OpenAI performance |
+| Enterprise Features | Basic | Advanced (VNet, Private endpoints) |
 
 ### Automatic Hardcoded Value Detection
 
@@ -1268,7 +1327,8 @@ request_id = set_request_id()  # Auto-generated ID (e.g., "07ca74ed")
 - Python >= 3.8
 - **psutil** >= 5.8.0 (for memory and resource monitoring)
 - **astor** >= 0.8.1 (for AST to source code conversion in code analysis)
-- **groq** >= 0.30.0 (for LLM-based analysis and constant naming)
+- **groq** >= 0.30.0 (for Groq LLM provider)
+- **openai** >= 1.0.0 (for Azure OpenAI provider)
 - **pymongo** >= 4.0.0 (for MongoDB error insight storage)
 - **requests** >= 2.32.4 (for HTTP-based API client integration)
 - Standard library for basic performance monitoring

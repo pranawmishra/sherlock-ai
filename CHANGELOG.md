@@ -16,6 +16,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.13.0] - 2026-01-24
+
+### Added
+- **Multi-LLM Provider Support**: Flexible LLM provider system with pluggable architecture for different AI services
+- **Azure OpenAI Provider**: New `AzureOpenAIProvider` class for enterprise-grade OpenAI models on Azure infrastructure
+- **LLM Provider Factory**: `get_provider()` factory function with singleton pattern for efficient provider management
+- **Provider Abstraction Layer**: `LLMProvider` abstract base class defining common interface for all LLM providers
+- **Provider Package**: New `src/sherlock_ai/providers/` module for centralized LLM provider management
+- **Environment-Based Provider Selection**: Automatic provider selection via `LLM_PROVIDER` environment variable
+- **Provider Comparison Documentation**: Detailed comparison table of Groq vs Azure OpenAI in README
+
+### Changed
+- **GroqManager Architecture**: Refactored `GroqManager` into `GroqProvider` extending `LLMProvider` base class
+- **Provider Organization**: Moved LLM-related code from `storage/` to dedicated `providers/` module
+- **Module Structure**: Separated AI providers from data storage concerns for better separation of concerns
+- **Backward Compatibility**: Maintained `GroqManager` as alias to `GroqProvider` for existing code compatibility
+- **Dependencies**: Added `openai>=1.0.0` for Azure OpenAI support
+
+### Improved
+- **Code Organization**: Clear separation between LLM providers and data storage layers
+- **Extensibility**: Easy addition of new LLM providers (OpenAI, Anthropic, Ollama) through common interface
+- **Enterprise Support**: Azure OpenAI integration enables enterprise deployments with VNet and private endpoints
+- **Configuration Flexibility**: Users can switch between LLM providers via environment variables without code changes
+- **Developer Experience**: Cleaner API with unified `chat_completion()` method across all providers
+
+### Infrastructure
+- **Provider Pattern**: Implemented factory pattern for LLM provider instantiation
+- **Singleton Management**: Single provider instance per application lifecycle for resource efficiency
+- **Graceful Degradation**: Enhanced warning messages for missing provider configuration
+- **Documentation**: Comprehensive setup guides for both Groq and Azure OpenAI providers
+
+### Modified Files
+- `src/sherlock_ai/providers/base.py` - New abstract base class for LLM providers
+- `src/sherlock_ai/providers/groq_provider.py` - Refactored Groq implementation
+- `src/sherlock_ai/providers/azure_openai_provider.py` - New Azure OpenAI implementation
+- `src/sherlock_ai/providers/factory.py` - Provider factory with singleton pattern
+- `src/sherlock_ai/providers/__init__.py` - Provider package exports
+- `src/sherlock_ai/storage/__init__.py` - Added backward compatibility alias
+- `README.md` - Added LLM Provider Configuration section with usage examples
+
 ## [1.12.0] - 2026-01-01
 
 ### Added
@@ -425,3 +465,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.10.1** - Removed API Key functionality
 - **1.11.0** - Centralized configuration management with GroqManager, graceful degradation for missing API keys, and improved error handling
 - **1.12.0** - Added dedicated PerformanceInsightsLogger for better logging organization and separation of concerns
+- **1.13.0** - Multi-LLM provider support with Azure OpenAI integration, provider abstraction layer, and flexible provider selection
