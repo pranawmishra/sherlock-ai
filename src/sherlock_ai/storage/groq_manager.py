@@ -1,5 +1,5 @@
 from groq import Groq
-import os
+from sherlock_ai.config.settings import settings
 import warnings
 
 class GroqManager:
@@ -11,7 +11,7 @@ class GroqManager:
         api_key: Groq API key (optional). 
         If not provided, LLM-powered features will be disabled.
         """
-        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        self.api_key = api_key or settings.groq_api_key
         if self.api_key:
             self.client = Groq(api_key=self.api_key)
             self.enabled = True

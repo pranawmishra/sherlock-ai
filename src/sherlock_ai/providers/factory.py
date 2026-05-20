@@ -2,7 +2,7 @@
 LLM provider factory
 """
 
-import os
+from sherlock_ai.config.settings import settings
 import logging
 import warnings
 from typing import Optional
@@ -29,7 +29,7 @@ def get_provider() -> LLMProvider:
     global _provider_instance
     
     if _provider_instance is None:
-        provider_type = os.getenv("LLM_PROVIDER", "groq").lower()
+        provider_type = settings.llm_provider.lower()
         
         logger.info(f"Initializing LLM provider: {provider_type}")
         

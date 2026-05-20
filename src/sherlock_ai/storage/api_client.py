@@ -1,10 +1,10 @@
 import requests
-import os
+from sherlock_ai.config.settings import settings
 from sherlock_ai.config import SHERLOCK_AI_API_BASE_URL, INJEST_LOGS_ENDPOINT, INJEST_PERFORMANCE_INSIGHTS_ENDPOINT
 
 class ApiClient:
     def __init__(self):
-        self.api_key = os.getenv("SHERLOCK_AI_API_KEY")
+        self.api_key = settings.sherlock_ai_api_key
         if not self.api_key:
             raise ValueError("SHERLOCK_AI_API_KEY is not set")
         self.client = requests.Session()

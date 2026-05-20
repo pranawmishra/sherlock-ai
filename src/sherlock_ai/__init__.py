@@ -2,11 +2,11 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.13.1"
+__version__ = "1.13.2"
 
 # Import main components for easy access
-from .logging_setup import sherlock_ai, get_logger, get_logging_stats, get_current_config, SherlockAI
-from .config import LoggingConfig, LoggingPresets, LogFileConfig, LoggerConfig
+from .logging_setup import get_logger, get_logging_stats, get_current_config, SherlockAI
+from .config import LoggingConfig, LogFileConfig, LoggerConfig
 from .utils import set_request_id, get_request_id, clear_request_id
 from .monitoring import (
     monitor_memory,
@@ -59,12 +59,12 @@ __all__ = [
 
     # Logging Configuration
     "SherlockAI",
-    "sherlock_ai",
+    # "sherlock_ai",
     "get_logger",
     "get_logging_stats",
     "get_current_config",
     "LoggingConfig",
-    "LoggingPresets",
+    # "LoggingPresets",
     "LogFileConfig",
     "LoggerConfig",
 

@@ -3,7 +3,7 @@ Azure OpenAI LLM provider implementation
 """
 
 from openai import AzureOpenAI
-import os
+from sherlock_ai.config.settings import settings
 import warnings
 import logging
 from typing import Optional, List, Dict, Any
@@ -21,10 +21,10 @@ class AzureOpenAIProvider(LLMProvider):
         api_version: Optional[str] = None,
         deployment_name: Optional[str] = None
     ):
-        self._api_key = api_key or os.getenv("AZURE_OPENAI_API_KEY")
-        self._endpoint = endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
-        self._api_version = api_version or os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
-        self._deployment_name = deployment_name or os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+        self._api_key = api_key or settings.azure_openai_api_key
+        self._endpoint = endpoint or settings.azure_openai_endpoint
+        self._api_version = api_version or settings.azure_openai_api_version
+        self._deployment_name = deployment_name or settings.azure_openai_deployment_name
         
         self._client = None
         self._enabled = False

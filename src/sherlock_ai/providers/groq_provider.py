@@ -3,7 +3,7 @@ Groq LLM provider implementation
 """
 
 from groq import Groq
-import os
+from sherlock_ai.config.settings import settings
 import warnings
 import logging
 from typing import Optional, List, Dict, Any
@@ -20,7 +20,7 @@ class GroqProvider(LLMProvider):
         api_key: Groq API key (optional). 
         If not provided, LLM-powered features will be disabled.
         """
-        self.api_key = api_key or (os.getenv("GROQ_API_KEY") if os.getenv("GROQ_API_KEY") else None)
+        self.api_key = api_key or settings.groq_api_key
         self._client = None
         self._enabled = False
 
