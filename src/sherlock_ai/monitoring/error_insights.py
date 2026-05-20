@@ -1,5 +1,5 @@
 import functools
-import weakref
+# import weakref
 import sys
 import traceback
 # import inspect
@@ -82,7 +82,7 @@ class SherlockErrorCaptureHandler(logging.Handler):
     Intercept ERROR-level log records and capture the active exception
     from sys.exc_info() - works even when the user doesn't re-raise
     """
-    _captured_ids : weakref.WeakSet = weakref.WeakSet()
+    _captured_ids : set = set()
 
     def __init__(self, level=logging.ERROR):
         super().__init__(level)

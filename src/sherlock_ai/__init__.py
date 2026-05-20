@@ -2,7 +2,7 @@
 Sherlock AI - Your AI assistant package
 """
 
-__version__ = "1.13.2"
+__version__ = "1.13.3"
 
 # Import main components for easy access
 from .logging_setup import get_logger, get_logging_stats, get_current_config, SherlockAI
