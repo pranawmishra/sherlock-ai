@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-import os
+from sherlock_ai.config.settings import settings
 from typing import Literal
 import warnings
 
@@ -9,7 +9,7 @@ class MongoManager:
         mongo_uri: MongoDB connection string (optional). 
         If not provided, MongoDB saving will be disabled.
         """
-        self.mongo_uri = mongo_uri or os.getenv("MONGO_URI")
+        self.mongo_uri = mongo_uri or settings.mongo_uri
         if self.mongo_uri:
             self.client = MongoClient(self.mongo_uri)
             self.db = self.client["sherlock-meta"]         # Fixed database name

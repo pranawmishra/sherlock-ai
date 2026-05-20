@@ -30,6 +30,10 @@ class LoggingConfig:
     auto_frameworks: List[str] = field(default_factory=lambda: ["fastapi"])
     auto_exclude_modules: List[str] = field(default_factory=lambda: ["sys", "os", "logging"])
     auto_min_duration: float = 0.0  # Only auto-log functions taking longer than this
+    monitor_resources: bool = False
+    monitor_memory: bool = False
+    log_performance_enabled: bool = True
+    performance_insights: bool = True
     
     # Directory settings
     logs_dir: str = "logs"
@@ -90,27 +94,27 @@ class LoggingConfig:
         return {
             "app": LogFileConfig(f"{self.logs_dir}/app{file_extension}"),
             "errors": LogFileConfig(f"{self.logs_dir}/errors{file_extension}", level=logging.ERROR),
-            "api": LogFileConfig(f"{self.logs_dir}/api{file_extension}"),
-            "database": LogFileConfig(f"{self.logs_dir}/database{file_extension}"),
-            "services": LogFileConfig(f"{self.logs_dir}/services{file_extension}"),
+            # "api": LogFileConfig(f"{self.logs_dir}/api{file_extension}"),
+            # "database": LogFileConfig(f"{self.logs_dir}/database{file_extension}"),
+            # "services": LogFileConfig(f"{self.logs_dir}/services{file_extension}"),
             "performance": LogFileConfig(f"{self.logs_dir}/performance{file_extension}"),
             "monitoring": LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}"),
             "error_insights": LogFileConfig(f"{self.logs_dir}/error_insights{file_extension}"),
             "performance_insights": LogFileConfig(f"{self.logs_dir}/performance_insights{file_extension}"),
-            "auto_instrumentation": LogFileConfig(f"{self.logs_dir}/auto_instrumentation{file_extension}"),
+            # "auto_instrumentation": LogFileConfig(f"{self.logs_dir}/auto_instrumentation{file_extension}"),
         }
 
     def _get_default_loggers(self) -> Dict[str, LoggerConfig]:
         """Default loggers configuration"""
         return {
-            "api": LoggerConfig("ApiLogger", log_files=["api"]),
-            "database": LoggerConfig("DatabaseLogger", log_files=["database"]),
-            "services": LoggerConfig("ServiceLogger", log_files=["services"]),
+            # "api": LoggerConfig("ApiLogger", log_files=["api"]),
+            # "database": LoggerConfig("DatabaseLogger", log_files=["database"]),
+            # "services": LoggerConfig("ServiceLogger", log_files=["services"]),
             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
             "monitoring": LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False),
             "error_insights": LoggerConfig("ErrorInsightsLogger", log_files=["error_insights"], propagate=False),
             "performance_insights": LoggerConfig("PerformanceInsightsLogger", log_files=["performance_insights"], propagate=False),
-            "auto_instrumentation": LoggerConfig("AutoInstrumentationLogger", log_files=["auto_instrumentation"], propagate=False),
+            # "auto_instrumentation": LoggerConfig("AutoInstrumentationLogger", log_files=["auto_instrumentation"], propagate=False),
         }
 
     def _get_default_external_loggers(self) -> Dict[str, Union[str, int]]:
@@ -121,81 +125,81 @@ class LoggingConfig:
         }
 
 # Factory methods for common configurations
-class LoggingPresets:
-    """Pre-configured logging setups for common use cases"""
+# class LoggingPresets:
+#     """Pre-configured logging setups for common use cases"""
     
-    @staticmethod
-    def minimal() -> LoggingConfig:
-        """Minimal logging - console + basic app log only"""
-        config = LoggingConfig()
-        config.log_files = {
-            "app": LogFileConfig("logs/app.log"),
-        }
-        config.loggers = {}
-        return config
+#     @staticmethod
+#     def minimal() -> LoggingConfig:
+#         """Minimal logging - console + basic app log only"""
+#         config = LoggingConfig()
+#         config.log_files = {
+#             "app": LogFileConfig("logs/app.log"),
+#         }
+#         config.loggers = {}
+#         return config
     
-    @staticmethod
-    def development() -> LoggingConfig:
-        """Development preset - all logs with debug level"""
-        config = LoggingConfig()
-        config.console_level = logging.DEBUG
-        config.root_level = logging.DEBUG
+#     @staticmethod
+#     def development() -> LoggingConfig:
+#         """Development preset - all logs with debug level"""
+#         config = LoggingConfig()
+#         config.console_level = logging.DEBUG
+#         config.root_level = logging.DEBUG
         
-        # Enable debug level for all files
-        for file_config in config.log_files.values():
-            file_config.level = logging.DEBUG
+#         # Enable debug level for all files
+#         for file_config in config.log_files.values():
+#             file_config.level = logging.DEBUG
             
-        return config
+#         return config
     
-    @staticmethod
-    def production() -> LoggingConfig:
-        """Production preset - optimized for performance"""
-        config = LoggingConfig()
-        config.console_level = logging.WARNING
+#     @staticmethod
+#     def production() -> LoggingConfig:
+#         """Production preset - optimized for performance"""
+#         config = LoggingConfig()
+#         config.console_level = logging.WARNING
         
-        # Disable some less critical logs in production
-        config.log_files["api"].enabled = False
-        config.log_files["services"].enabled = False
+#         # Disable some less critical logs in production
+#         config.log_files["api"].enabled = False
+#         config.log_files["services"].enabled = False
         
-        return config
+#         return config
     
-    @staticmethod
-    def performance_only() -> LoggingConfig:
-        """Only performance monitoring"""
-        config = LoggingConfig()
-        config.log_files = {
-            "performance": LogFileConfig("logs/performance.log"),
-        }
-        config.loggers = {
-            "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
-        }
-        return config
+#     @staticmethod
+#     def performance_only() -> LoggingConfig:
+#         """Only performance monitoring"""
+#         config = LoggingConfig()
+#         config.log_files = {
+#             "performance": LogFileConfig("logs/performance.log"),
+#         }
+#         config.loggers = {
+#             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
+#         }
+#         return config
 
-    @staticmethod
-    def custom_files(file_configs: Dict[str, str]) -> LoggingConfig:
-        """Create config with custom file names"""
-        config = LoggingConfig()
+#     @staticmethod
+#     def custom_files(file_configs: Dict[str, str]) -> LoggingConfig:
+#         """Create config with custom file names"""
+#         config = LoggingConfig()
         
-        # Update file paths
-        for key, filename in file_configs.items():
-            if key in config.log_files:
-                config.log_files[key].filename = filename
+#         # Update file paths
+#         for key, filename in file_configs.items():
+#             if key in config.log_files:
+#                 config.log_files[key].filename = filename
                 
-        return config
+#         return config
     
-    @staticmethod
-    def auto_instrument_all() -> LoggingConfig:
-        """Full auto-instrumentation - frameworks + function tracing"""
-        config = LoggingConfig()
-        config.auto_instrument = True
-        config.auto_trace_functions = True
-        config.auto_min_duration = 0.001  # 1ms threshold
-        return config
+#     @staticmethod
+#     def auto_instrument_all() -> LoggingConfig:
+#         """Full auto-instrumentation - frameworks + function tracing"""
+#         config = LoggingConfig()
+#         config.auto_instrument = True
+#         config.auto_trace_functions = True
+#         config.auto_min_duration = 0.001  # 1ms threshold
+#         return config
         
-    @staticmethod
-    def auto_frameworks_only() -> LoggingConfig:
-        """Auto-instrument frameworks only (recommended)"""
-        config = LoggingConfig()
-        config.auto_instrument = True
-        config.auto_trace_functions = False
-        return config
+#     @staticmethod
+#     def auto_frameworks_only() -> LoggingConfig:
+#         """Auto-instrument frameworks only (recommended)"""
+#         config = LoggingConfig()
+#         config.auto_instrument = True
+#         config.auto_trace_functions = False
+#         return config

@@ -1,6 +1,8 @@
 import functools
+import weakref
+import sys
 import traceback
-import inspect
+# import inspect
 from typing import Callable, TypeVar, Any
 from typing import Union
 from .utils import generate_error_insights
@@ -74,3 +76,42 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
         return async_wrapper if asyncio.iscoroutinefunction(f) else sync_wrapper
 
     return decorator(func) if func else decorator
+
+class SherlockErrorCaptureHandler(logging.Handler):
+    """
+    Intercept ERROR-level log records and capture the active exception
+    from sys.exc_info() - works even when the user doesn't re-raise
+    """
+    _captured_ids : weakref.WeakSet = weakref.WeakSet()
+
+    def __init__(self, level=logging.ERROR):
+        super().__init__(level)
+
+    def emit(self, record):
+        if record.levelno < logging.ERROR:
+            return
+
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        if exc_type is None:
+            return # no active exception in context, nothing to capture
+
+        exc_id = id(exc_value)
+        if exc_id in self._captured_ids:
+            return # already captured this exception, nothing to do
+
+        self._captured_ids.add(exc_id)
+
+        error_message = str(exc_value)
+
+        stack = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+        probable_cause = generate_error_insights(error_message, stack)
+
+        log_entry = {
+            "function_name": record.funcName,
+            "error_message": error_message,
+            "stack_trace": stack,
+            "probable_cause": probable_cause
+        }
+
+        mongo_manager.save(log_entry, "error-insights")
+        logger.info(probable_cause)
