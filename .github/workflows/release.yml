@@ -38,7 +38,7 @@ jobs:
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     
     - name: Create Release
       if: steps.check_release.outputs.exists == 'false'
@@ -48,4 +48,4 @@ jobs:
           --notes "Automated release for version ${{ steps.version.outputs.version }}" \
           --latest
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
