@@ -16,6 +16,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.13.4] - 2026-05-21
+
+### Added
+- **SherlockErrorCaptureHandler**: New `logging.Handler` subclass that intercepts `ERROR`-level log records and captures the active exception via `sys.exc_info()` — works even when the user catches and swallows exceptions with their own `try/except` block without re-raising
+- **Automatic `errors.json` Population**: `sherlock_error_handler` now logs at `ERROR` level to the root logger automatically, so `errors.json` is populated for every unhandled exception without requiring any manual `logger.error()` call from the user
+- **Configurable Auto-Instrumentation Decorator Stack**: New boolean flags on `LoggingConfig` — `monitor_resources`, `monitor_memory`, `log_performance_enabled`, `performance_insights` — to individually enable or disable each decorator applied to FastAPI routes. Only `sherlock_error_handler` + `log_performance` + `sherlock_performance_insights` are active by default (was all 5 always on)
+- **Double-Patch Guard**: Added `_sherlock_patched` class attribute check in `_patch_fastapi_app` to prevent FastAPI class methods from being wrapped multiple times if `setup()` is called more than once
+
+### Fixed
+- **Silent Exception Loss**: Exceptions caught by user `try/except` blocks and logged via `logger.error()` are now captured into `error_insights.json` and MongoDB without requiring `raise e`
+- **`errors.json` Never Populated**: Fixed root cause where `sherlock_error_handler` only called `logger.info()` after catching an exception, meaning the `errors` file handler (ERROR level) on the root logger was never triggered
+- **Duplicate Capture Prevention**: Pre-registers exception `id` in `SherlockErrorCaptureHandler._captured_ids` inside `sherlock_error_handler` before logging at ERROR level, preventing the same exception from being captured twice into `error_insights`
+
+### Changed
+- **Slimmed Default Log Files**: Reduced default log files from 10 to 6 — removed `api`, `database`, `services`, and `auto_instrumentation` files that were created but rarely used. Defaults are now: `app`, `errors`, `performance`, `monitoring`, `error_insights`, `performance_insights`
+- **Removed `LoggingPresets` from Public API**: `LoggingPresets` class is no longer exported from the package. All preset behaviour is expressible directly via `LoggingConfig` fields with sensible defaults
+- **Removed Duplicate `sherlock_ai()` Function**: Standalone `sherlock_ai()` function (which duplicated all logic of `SherlockAI.setup()`) is removed. Use the `SherlockAI` class directly
+
+### Modified Files
+- `src/sherlock_ai/monitoring/error_insights.py` - Added `SherlockErrorCaptureHandler` class; updated `sherlock_error_handler` to log at ERROR level and pre-register exception ids
+- `src/sherlock_ai/logging_setup.py` - Registered `SherlockErrorCaptureHandler` on root logger in `setup()`; removed duplicate `sherlock_ai()` function
+- `src/sherlock_ai/auto/framework_patcher.py` - Added `_sherlock_patched` guard; made decorator stack conditional on config flags; threaded `config` through `patch_frameworks`
+- `src/sherlock_ai/auto/__init__.py` - Updated `enable_auto_instrumentation` to pass `config` to `patch_frameworks`
+- `src/sherlock_ai/config/logging.py` - Added `monitor_resources`, `monitor_memory`, `log_performance_enabled`, `performance_insights` flags; slimmed default log files and loggers; commented out `LoggingPresets`
+- `src/sherlock_ai/config/__init__.py` - Removed `LoggingPresets` from exports
+- `src/sherlock_ai/__init__.py` - Removed `sherlock_ai` and `LoggingPresets` from imports and `__all__`
+
+## [1.13.3] - 2026-05-21
+
+### Added
+- **CI Workflow**: New GitHub Actions CI workflow for automated testing on pull requests and pushes
+- **Improved Release Pipeline**: Enhanced `release.yml` and `publish.yml` workflows for more reliable automated releases
+
+### Fixed
+- **Formatting Error**: Ignored a formatting error that was causing CI failures in the test suite
+- **Test Suite Compatibility**: Updated unit and integration tests to align with script changes introduced in v1.13.2
+
+### Modified Files
+- `.github/workflows/ci.yml` - New CI pipeline with automated test runs
+- `.github/workflows/release.yml` - Improved release workflow
+- `.github/workflows/publish.yml` - Improved publish workflow
+
+## [1.13.2] - 2026-05-01
+
+### Changed
+- **Pydantic Settings**: Replaced native `os` module environment variable access with `pydantic-settings` for structured, validated configuration management
+- **File Cleanup**: Removed unnecessary files that were cluttering the repository
+
+### Modified Files
+- Configuration files updated to use `pydantic-settings` for environment variable handling
+
+## [1.13.1] - 2026-02-01
+
+### Added
+- **Structured Test Suite**: Added comprehensive unit and integration test coverage across the package (`tests/unit/` and `tests/integration/`)
+
+### Fixed
+- **Version Number**: Corrected version number that was out of sync after the v1.13.0 release
+
+### Modified Files
+- `tests/unit/test_config.py` - Unit tests for configuration classes
+- `tests/integration/test_sherlock_setup.py` - Integration tests for SherlockAI setup and lifecycle
+
 ## [1.13.0] - 2026-01-24
 
 ### Added
@@ -466,3 +529,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.11.0** - Centralized configuration management with GroqManager, graceful degradation for missing API keys, and improved error handling
 - **1.12.0** - Added dedicated PerformanceInsightsLogger for better logging organization and separation of concerns
 - **1.13.0** - Multi-LLM provider support with Azure OpenAI integration, provider abstraction layer, and flexible provider selection
+- **1.13.1** - Structured unit and integration test suite, version number fix
+- **1.13.2** - Replaced native os environment variable access with pydantic-settings, removed unnecessary files
+- **1.13.3** - CI workflow added, improved release/publish pipelines, test suite compatibility fixes
+- **1.13.4** - SherlockErrorCaptureHandler for silent exception capture, automatic errors.json population, configurable decorator stack, double-patch guard, slimmed default log files, removed LoggingPresets from public API
