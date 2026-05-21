@@ -40,6 +40,7 @@ pip install sherlock-ai
 ## Authors
 
 - **Pranaw Mishra** - [pranawmishra73@gmail.com](mailto:pranawmishra73@gmail.com)
+- **Kunal Aggarwal** - [aggarwalkunu263@gmail.com](mailto:aggarwalkunu263@gmail.com)
 
 ## Quick Start
 
