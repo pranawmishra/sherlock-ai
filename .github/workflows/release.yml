@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]
     paths: [ 'pyproject.toml' ]  # Only trigger when version changes
+  workflow_run:
+    workflows: [ CI ]
+    types: [ completed ]
+    branches: [ main ]
 
 permissions:
   contents: write
@@ -11,7 +15,7 @@ permissions:
 
 jobs:
   release:
-    if: "!contains(github.event.head_commit.message, 'skip-release')"
+    if: "!contains(github.event.head_commit.message, 'skip-release') || github.event.workflow_run.conclusion == 'success'"
     runs-on: ubuntu-latest
     
     steps:
@@ -34,7 +38,7 @@ jobs:
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
       env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Create Release
       if: steps.check_release.outputs.exists == 'false'
@@ -44,4 +48,4 @@ jobs:
           --notes "Automated release for version ${{ steps.version.outputs.version }}" \
           --latest
       env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
