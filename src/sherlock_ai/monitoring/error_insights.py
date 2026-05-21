@@ -25,8 +25,18 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 return await f(*args, **kwargs)
 
             except Exception as e:
+                # Pre-register so SherlockErrorCaptureHandler doesn't double-capture this
+                SherlockErrorCaptureHandler._captured_ids.add(id(e))
+
                 error_message = str(e)
                 stack = traceback.format_exc()
+
+                # This logs at ERROR level → root logger → writes to errors.json automatically
+                logging.getLogger().error(
+                    f"Unhandled exception in {f.__name__}: {error_message}",
+                    exc_info=True
+
+                )
 
                 # Call LLM to analyze the error:
                 probable_cause = generate_error_insights(error_message, stack)
@@ -52,8 +62,19 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
             try:
                 return f(*args, **kwargs)
             except Exception as e:
+
+                # Pre-register so SherlockErrorCaptureHandler doesn't double-capture this
+                SherlockErrorCaptureHandler._captured_ids.add(id(e))
+
                 error_message = str(e)
                 stack = traceback.format_exc()
+
+                # This logs at ERROR level → root logger → writes to errors.json automatically
+                logging.getLogger().error(
+                    f"Unhandled exception in {f.__name__}: {error_message}",
+                    exc_info=True
+
+                )
 
                 # Call LLM to analyze the error:
                 probable_cause = generate_error_insights(error_message, stack)
