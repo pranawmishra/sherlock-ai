@@ -123,7 +123,7 @@ os.environ["GROQ_API_KEY"] = "your-key"          # default provider
 def risky_operation():
     return 1 / 0  # error auto-analyzed and stored
 ```
-
+<!-- 
 ### Hardcoded Value Detection
 
 ```python
@@ -134,13 +134,13 @@ def api_handler():
     url = "https://api.example.com"  # auto-extracted to constants.py
     timeout = 30
     ...
-```
+``` -->
 
 ---
 
 ## Configuration
 
-### Presets
+<!-- ### Presets
 
 ```python
 from sherlock_ai import sherlock_ai, LoggingPresets
@@ -149,7 +149,7 @@ sherlock_ai(LoggingPresets.development())   # DEBUG, verbose
 sherlock_ai(LoggingPresets.production())    # INFO, optimized
 sherlock_ai(LoggingPresets.minimal())       # console + app.log only
 sherlock_ai(LoggingPresets.performance_only())
-```
+``` -->
 
 ### Custom config
 
@@ -225,6 +225,7 @@ export MONGO_URI="mongodb://localhost:27017"
 ## Authors
 
 **Pranaw Mishra** · [pranawmishra73@gmail.com](mailto:pranawmishra73@gmail.com)
+
 **Kunal Aggarwal** · [aggarwalkunu263@gmail.com](mailto:aggarwalkunu263@gmail.com)
 
 ---
