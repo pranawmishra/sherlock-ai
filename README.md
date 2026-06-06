@@ -14,6 +14,8 @@
 
 ---
 
+**Documentation**: [https://docs.sherlockai.dev](https://docs.sherlockai.dev)
+
 **Source Code**: [https://github.com/pranawmishra/sherlock-ai](https://github.com/pranawmishra/sherlock-ai)
 
 ---
