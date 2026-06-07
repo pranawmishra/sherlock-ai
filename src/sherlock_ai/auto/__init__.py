@@ -9,7 +9,7 @@ def enable_auto_instrumentation(config):
     """Enable automatic instrumentation based on configuration"""
     if config.auto_instrument:
         # Patch supported frameworks
-        patch_frameworks(config.auto_frameworks)
+        patch_frameworks(config.auto_frameworks, config)
         
     if config.auto_trace_functions:
         # Enable function-level tracing

@@ -1,5 +1,5 @@
 import pytest
-# from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 from sherlock_ai.analysis.code_analyzer import CodeAnalyzer
 
 
@@ -104,10 +104,13 @@ class TestSuggestConstantName:
 
     @pytest.fixture
     def analyzer(self):
-        instance = CodeAnalyzer()
-        # Force heuristic path: disable LLM
-        instance.groq_manager.enabled = False
-        return instance
+        with patch(
+            "sherlock_ai.providers.groq_provider.GroqProvider.enabled",
+            new_callable=PropertyMock,
+            return_value=False,
+        ):
+            instance = CodeAnalyzer()
+            yield instance
 
     def test_string_value_produces_uppercase_name(self, analyzer):
         name = analyzer.suggest_constant_name("Hello World", "string")
