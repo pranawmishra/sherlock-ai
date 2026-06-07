@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    <em>AI-powered monitoring, logging & error analysis for Python — zero friction, production ready.</em>
+    <em>AI-powered observability and debugging toolkit for Python applications</em>
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@ Sherlock AI is a Python observability toolkit that **automatically monitors, log
 - 📊 **Full-Stack Monitoring** — Performance · Memory · CPU/I/O · Resources
 - 🗄️ **Flexible Storage** — MongoDB or HTTP API ingestion
 - 🔄 **Async/Sync** — Works seamlessly with both
-- 🎛️ **Config Presets** — `development`, `production`, `minimal`, `performance_only`
+<!-- - 🎛️ **Config Presets** — `development`, `production`, `minimal`, `performance_only` -->
 - 📋 **JSON Logs** — Structured output ready for log aggregators
 
 ---
