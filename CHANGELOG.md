@@ -16,6 +16,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+
+## [1.13.7] - 2026-05-21
+
+### Added
+- Future enhancements and features will be listed here
+
+### Changed
+- Future changes will be documented here
+
+### Fixed
+- Added PAT for pipeline run 
+
+
+## [1.13.6] - 2026-05-21
+
+### Added
+- Added ci.yml file for testing the package
+
+### Changed
+- Future changes will be documented here
+
+### Fixed
+- Future fixes will be documented here
+
+## [1.13.5] - 2026-05-21
+
+### Added
+- Added DEV Branch
+
+### Changed
+- Future changes will be documented here
+
+### Fixed
+- Future fixes will be documented here
+
 ## [1.13.4] - 2026-05-21
 
 ### Added
@@ -533,3 +568,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.13.2** - Replaced native os environment variable access with pydantic-settings, removed unnecessary files
 - **1.13.3** - CI workflow added, improved release/publish pipelines, test suite compatibility fixes
 - **1.13.4** - SherlockErrorCaptureHandler for silent exception capture, automatic errors.json population, configurable decorator stack, double-patch guard, slimmed default log files, removed LoggingPresets from public API
+- **1.13.5** - Added DEV Branch
+- **1.13.6** - Added ci.yml file for testing the package
+- **1.13.7** - Added PAT for pipeline run
