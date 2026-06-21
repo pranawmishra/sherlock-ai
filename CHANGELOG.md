@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Future fixes will be documented here
 
+## [1.13.8] - 2026-06-21
+
+### Added
+- Future enhancements and features will be listed here
+
+### Changed
+- Future changes will be documented here
+
+### Fixed
+- Added threadPoolExecutor to save the errors in mongodb and generate error insights in a separate thread to avoid blocking the main thread and slow down the API responses
+
 
 ## [1.13.7] - 2026-05-21
 
@@ -571,3 +582,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **1.13.5** - Added DEV Branch
 - **1.13.6** - Added ci.yml file for testing the package
 - **1.13.7** - Added PAT for pipeline run
+- **1.13.8** - Added threadPoolExecutor to save the errors in a separate thread to avoid blocking the main thread
