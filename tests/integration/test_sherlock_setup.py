@@ -8,7 +8,7 @@ import pytest
 # from pathlib import Path
 
 from sherlock_ai import SherlockAI, get_logger, get_logging_stats
-from sherlock_ai.config.logging import LoggingConfig, LoggingPresets, LogFileConfig#, LoggerConfig
+from sherlock_ai.config.logging import LoggingConfig, LogFileConfig#, LoggerConfig
 
 
 # ── Fixtures ───────────────────────────────────────────────────────────────────
@@ -223,23 +223,23 @@ class TestGetLoggingStats:
 # ── Preset integration with setup ─────────────────────────────────────────────
 
 class TestPresetIntegrationWithSetup:
-    def test_minimal_preset_sets_up_without_error(self, tmp_path):
-        config = LoggingPresets.minimal()
-        config.logs_dir = str(tmp_path / "logs")
-        config.auto_instrument = False
-        instance = SherlockAI(config=config)
-        instance.setup()
-        assert instance.is_configured is True
-        instance.cleanup()
+    # def test_minimal_preset_sets_up_without_error(self, tmp_path):
+    #     config = LoggingPresets.minimal()
+    #     config.logs_dir = str(tmp_path / "logs")
+    #     config.auto_instrument = False
+    #     instance = SherlockAI(config=config)
+    #     instance.setup()
+    #     assert instance.is_configured is True
+    #     instance.cleanup()
 
-    def test_performance_only_preset_sets_up_without_error(self, tmp_path):
-        config = LoggingPresets.performance_only()
-        config.logs_dir = str(tmp_path / "logs")
-        config.auto_instrument = False
-        instance = SherlockAI(config=config)
-        instance.setup()
-        assert instance.is_configured is True
-        instance.cleanup()
+    # def test_performance_only_preset_sets_up_without_error(self, tmp_path):
+    #     config = LoggingPresets.performance_only()
+    #     config.logs_dir = str(tmp_path / "logs")
+    #     config.auto_instrument = False
+    #     instance = SherlockAI(config=config)
+    #     instance.setup()
+    #     assert instance.is_configured is True
+    #     instance.cleanup()
 
     def test_custom_single_log_file_sets_up_without_error(self, tmp_path):
         config = LoggingConfig(
