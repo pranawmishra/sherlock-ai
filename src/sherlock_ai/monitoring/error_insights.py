@@ -1,5 +1,4 @@
 import functools
-import time
 # import weakref
 import sys
 import traceback
@@ -37,7 +36,6 @@ def _run_analysis_and_save(func_name: str, error_message: str, stack: str) -> No
         "probable_cause": probable_cause,
     }
     # add time.sleep to delay for debugging
-    time.sleep(10)
     mongo_manager.save(log_entry, "error-insights")
     logger.info(probable_cause)
 
