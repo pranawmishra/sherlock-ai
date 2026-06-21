@@ -3,7 +3,7 @@ This module contains the logic for generating insights from the monitoring data.
 """
 # TODO: Add a way to get only the user called function and injest in the  llm call to generate insights instead of the whole function source which include the sherlock_ai code
 
-from typing import List, TypeVar, Callable, Any, Union
+from typing import TypeVar, Callable, Any, Union
 import functools
 from ..storage import MongoManager
 import asyncio
@@ -19,6 +19,28 @@ F = TypeVar("F", bound=Callable[..., Any])
 mongo_manager = MongoManager()
 
 logger = logging.getLogger("PerformanceInsightsLogger")
+
+_bg_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="sherlock_perf")
+
+def _run_insight_job(f: F, args: tuple, kwargs: dict, duration: float) -> None:
+    """
+    Blocking helper: calls LLM and saves to MongoDB.
+    Designed to be run in a background thread so it never blocks the caller.
+    """
+    function_source = FunctionSource._extract_user_function_sources_only(f)
+    function_source_str = "\n\n".join(function_source.values())
+    insights = generate_performance_insights(f.__name__, args, kwargs, duration, function_source_str)
+    performance_insights_entry = {
+        "function_name": f.__name__,
+        # "args": args,
+        "kwargs": kwargs,
+        "duration": duration,
+        "function_source": function_source_str,
+        "insights": insights,
+        "created_at": datetime.now(timezone.utc) # get local time
+    }
+    mongo_manager.save(performance_insights_entry, "performance-insights")
+    logger.info(insights)
 
 def sherlock_performance_insights(
     func: F = None,
@@ -51,25 +73,33 @@ def sherlock_performance_insights(
             end_time = time.perf_counter()
             duration = end_time - start_time
             if duration >= latency:
-                async def run_insight_job():
-                    # print(f.__code__)
-                    function_source = FunctionSource._extract_user_function_sources_only(f)
-                    function_source_str = "\n\n".join(function_source.values())
-                    insights = generate_performance_insights(f.__name__, args, kwargs, duration, function_source_str)
-                    performance_insights_entry = {
-                        "function_name": f.__name__,
-                        # "args": args,
-                        "kwargs": kwargs,
-                        "duration": duration,
-                        "function_source": function_source_str,
-                        "insights": insights,
-                        "created_at": datetime.now(timezone.utc) # get local time
-                    }
-                    mongo_manager.save(performance_insights_entry, "performance-insights")
-                    # api_client.post_performance_insights(performance_insights_entry)
-                    logger.info(insights)
+                asyncio.get_event_loop().run_in_executor(
+                    _bg_executor,
+                    _run_insight_job,
+                    f,
+                    args,
+                    kwargs,
+                    duration
+                )
+                # async def run_insight_job():
+                #     # print(f.__code__)
+                #     function_source = FunctionSource._extract_user_function_sources_only(f)
+                #     function_source_str = "\n\n".join(function_source.values())
+                #     insights = generate_performance_insights(f.__name__, args, kwargs, duration, function_source_str)
+                #     performance_insights_entry = {
+                #         "function_name": f.__name__,
+                #         # "args": args,
+                #         "kwargs": kwargs,
+                #         "duration": duration,
+                #         "function_source": function_source_str,
+                #         "insights": insights,
+                #         "created_at": datetime.now(timezone.utc) # get local time
+                #     }
+                #     mongo_manager.save(performance_insights_entry, "performance-insights")
+                #     # api_client.post_performance_insights(performance_insights_entry)
+                #     logger.info(insights)
 
-                asyncio.create_task(run_insight_job())  # Run in background for async functions
+                # asyncio.create_task(run_insight_job())  # Run in background for async functions
 
             return result
         
@@ -80,34 +110,41 @@ def sherlock_performance_insights(
             end_time = time.perf_counter()
             duration = end_time - start_time
             if duration >= latency:
-                async def run_insight_job():
-                    logger.info("Running insight job")
-                    # print(f.__code__)
-                    function_source = FunctionSource._extract_user_function_sources_only(f)
-                    function_source_str = "\n\n".join(function_source.values())
-                    insights = generate_performance_insights(f.__name__, args, kwargs, duration, function_source_str)
-                    performance_insights_entry = {
-                        "function_name": f.__name__,
-                        # "args": args,
-                        "kwargs": kwargs,
-                        "duration": duration,
-                        "function_source": function_source_str,
-                        "insights": insights,
-                        "created_at": datetime.now(timezone.utc) # get local time
-                    }
-                    mongo_manager.save(performance_insights_entry, "performance-insights")
-                    # api_client.post_performance_insights(performance_insights_entry)
-                    logger.info(insights)
-                def run_in_executor(): # Run in background for sync functions
-                    # loop = asyncio.new_event_loop()
-                    # asyncio.set_event_loop(loop)
-                    # loop.run_until_complete(run_insight_job())
-                    # loop.close()
-                    asyncio.run(run_insight_job())
+                _bg_executor.submit(
+                    _run_insight_job,
+                    f,
+                    args,
+                    kwargs,
+                    duration
+                )
+                # async def run_insight_job():
+                #     logger.info("Running insight job")
+                #     # print(f.__code__)
+                #     function_source = FunctionSource._extract_user_function_sources_only(f)
+                #     function_source_str = "\n\n".join(function_source.values())
+                #     insights = generate_performance_insights(f.__name__, args, kwargs, duration, function_source_str)
+                #     performance_insights_entry = {
+                #         "function_name": f.__name__,
+                #         # "args": args,
+                #         "kwargs": kwargs,
+                #         "duration": duration,
+                #         "function_source": function_source_str,
+                #         "insights": insights,
+                #         "created_at": datetime.now(timezone.utc) # get local time
+                #     }
+                #     mongo_manager.save(performance_insights_entry, "performance-insights")
+                #     # api_client.post_performance_insights(performance_insights_entry)
+                #     logger.info(insights)
+                # def run_in_executor(): # Run in background for sync functions
+                #     # loop = asyncio.new_event_loop()
+                #     # asyncio.set_event_loop(loop)
+                #     # loop.run_until_complete(run_insight_job())
+                #     # loop.close()
+                #     asyncio.run(run_insight_job())
 
 
-                with ThreadPoolExecutor() as executor:
-                    executor.submit(run_in_executor)  # Run in background for sync functions
+                # with ThreadPoolExecutor() as executor:
+                #     executor.submit(run_in_executor)  # Run in background for sync functions
 
             return result
         
