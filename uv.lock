@@ -1356,7 +1356,7 @@ wheels = [
 
 [[package]]
 name = "sherlock-ai"
-version = "1.13.3"
+version = "1.14.8"
 source = { editable = "." }
 dependencies = [
     { name = "astor" },
