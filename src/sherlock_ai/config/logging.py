@@ -91,31 +91,41 @@ class LoggingConfig:
 
         # Choose file extension based on format type
         file_extension = ".json" if self.log_format_type == "json" else ".log"
-        return {
+        files = {
             "app": LogFileConfig(f"{self.logs_dir}/app{file_extension}"),
             "errors": LogFileConfig(f"{self.logs_dir}/errors{file_extension}", level=logging.ERROR),
             # "api": LogFileConfig(f"{self.logs_dir}/api{file_extension}"),
             # "database": LogFileConfig(f"{self.logs_dir}/database{file_extension}"),
             # "services": LogFileConfig(f"{self.logs_dir}/services{file_extension}"),
             "performance": LogFileConfig(f"{self.logs_dir}/performance{file_extension}"),
-            "monitoring": LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}"),
+            # "monitoring": LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}"),
             "error_insights": LogFileConfig(f"{self.logs_dir}/error_insights{file_extension}"),
             "performance_insights": LogFileConfig(f"{self.logs_dir}/performance_insights{file_extension}"),
             # "auto_instrumentation": LogFileConfig(f"{self.logs_dir}/auto_instrumentation{file_extension}"),
         }
+        # Only create monitoring file if memory or resource monitoring is enabled
+        if self.monitor_memory or self.monitor_resources:
+            files["monitoring"] = LogFileConfig(f"{self.logs_dir}/monitoring{file_extension}")
+
+        return files
 
     def _get_default_loggers(self) -> Dict[str, LoggerConfig]:
         """Default loggers configuration"""
-        return {
+        loggers = {
             # "api": LoggerConfig("ApiLogger", log_files=["api"]),
             # "database": LoggerConfig("DatabaseLogger", log_files=["database"]),
             # "services": LoggerConfig("ServiceLogger", log_files=["services"]),
             "performance": LoggerConfig("PerformanceLogger", log_files=["performance"], propagate=False),
-            "monitoring": LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False),
+            # "monitoring": LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False),
             "error_insights": LoggerConfig("ErrorInsightsLogger", log_files=["error_insights"], propagate=False),
             "performance_insights": LoggerConfig("PerformanceInsightsLogger", log_files=["performance_insights"], propagate=False),
             # "auto_instrumentation": LoggerConfig("AutoInstrumentationLogger", log_files=["auto_instrumentation"], propagate=False),
         }
+        # Add monitoring logger if monitoring is enabled
+        if self.monitor_memory or self.monitor_resources:
+            loggers["monitoring"] = LoggerConfig("MonitoringLogger", log_files=["monitoring"], propagate=False)
+        
+        return loggers
 
     def _get_default_external_loggers(self) -> Dict[str, Union[str, int]]:
         """Default external library log levels"""
