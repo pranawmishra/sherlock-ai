@@ -60,19 +60,38 @@ class TestLoggingConfig:
     def test_default_log_files_are_created(self):
         cfg = LoggingConfig()
         expected = [
-            "app", "errors", "performance", "monitoring",
+            "app", "errors", "performance",
             "error_insights", "performance_insights",
         ]
         for key in expected:
             assert key in cfg.log_files, f"Missing log file key: {key}"
+        # monitoring should NOT be present when both flags are False (default)
+        assert "monitoring" not in cfg.log_files
 
     def test_default_loggers_are_created(self):
         cfg = LoggingConfig()
         expected = [
-            "performance", "monitoring", "error_insights", "performance_insights",
+            "performance", "error_insights", "performance_insights",
         ]
         for key in expected:
             assert key in cfg.loggers, f"Missing logger key: {key}"
+        # monitoring logger should NOT be present when both flags are False (default)
+        assert "monitoring" not in cfg.loggers
+
+    def test_monitoring_created_when_memory_enabled(self):
+        cfg = LoggingConfig(monitor_memory=True)
+        assert "monitoring" in cfg.log_files
+        assert "monitoring" in cfg.loggers
+
+    def test_monitoring_created_when_resources_enabled(self):
+        cfg = LoggingConfig(monitor_resources=True)
+        assert "monitoring" in cfg.log_files
+        assert "monitoring" in cfg.loggers
+
+    def test_monitoring_not_created_when_both_disabled(self):
+        cfg = LoggingConfig(monitor_memory=False, monitor_resources=False)
+        assert "monitoring" not in cfg.log_files
+        assert "monitoring" not in cfg.loggers
 
     def test_default_attributes_exist(self):
         cfg = LoggingConfig()
