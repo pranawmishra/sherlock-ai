@@ -3,16 +3,12 @@ from __future__ import annotations
 import asyncio
 import functools
 import logging
-
-# import weakref
 import sys
 import traceback
 from concurrent.futures import ThreadPoolExecutor
-
-# import inspect
 from typing import Any, Callable, ClassVar, TypeVar
 
-from ..storage import MongoManager  #, api_client
+from ..storage import MongoManager
 from .utils import generate_error_insights
 
 # Type variable for better type hints
@@ -73,9 +69,6 @@ def sherlock_error_handler(func: F = None) -> F | Callable[[F], F]:
                     stack,
                 )
 
-                # Re-raise or handle as needed
-                # raise e
-
         @functools.wraps(f)
         def sync_wrapper(*args, **kwargs):
             try:
@@ -101,9 +94,6 @@ def sherlock_error_handler(func: F = None) -> F | Callable[[F], F]:
                     error_message,
                     stack,
                 )
-
-                # Re-raise or handle as needed
-                # raise e
 
         return async_wrapper if asyncio.iscoroutinefunction(f) else sync_wrapper
 

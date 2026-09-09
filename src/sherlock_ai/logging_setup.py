@@ -1,6 +1,4 @@
 # app > core > logging_config.py
-# from dotenv import load_dotenv
-# load_dotenv()
 
 from __future__ import annotations
 
@@ -215,99 +213,6 @@ class SherlockAI:
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
-
-
-# def sherlock_ai(config: Optional[LoggingConfig] = None, format_type: str = "log", auto_instrument: bool = True):
-#     """
-#     Set up logging configuration with full customization support
-
-#     Args:
-#         config: LoggingConfig object. If None, uses default configuration.
-    
-#     Returns:
-#         The configuation that was applied (useful for introspection)
-#     """
-#     global _current_config # Access the global variable
-    
-#     if config is None:
-#         config = LoggingConfig(log_format_type=format_type, auto_instrument=auto_instrument)
-
-#     # Create logs directory if it doesn't exist
-#     logs_dir = Path(config.logs_dir)
-#     logs_dir.mkdir(exist_ok=True)
-
-#     # Create custom formatter based on format type
-#     if config.log_format_type == "json":
-#         formatter = JSONFormatter(datefmt=config.date_format)
-#     else:
-#         formatter = RequestIdFormatter(config.log_format, datefmt=config.date_format)
-
-#     # Clear existing handlers to avoid duplicates
-#     logging.root.handlers.clear()
-
-#     # Clear handlers from all existing loggers
-#     for logger_name in list(logging.Logger.manager.loggerDict.keys()):
-#         logger = logging.getLogger(logger_name)
-#         if hasattr(logger, 'handlers'):
-#             logger.handlers.clear()
-
-#     # 1. Console Handler - prints to terminal
-#     if config.console_enabled:
-#         console_handler = logging.StreamHandler()
-#         console_handler.setLevel(config.console_level)
-#         # Console always uses standard format for readability
-#         console_formatter = RequestIdFormatter(config.log_format, datefmt=config.date_format)
-#         console_handler.setFormatter(console_formatter)
-#         logging.root.addHandler(console_handler)
-
-#     # Create file handlers
-#     file_handlers = {}
-#     for name, file_config in config.log_files.items():
-#         if file_config.enabled:
-#             handler = logging.handlers.RotatingFileHandler(
-#                 file_config.filename,
-#                 maxBytes=file_config.max_bytes,
-#                 backupCount=file_config.backup_count,
-#                 encoding=file_config.encoding
-#             )
-#             handler.setLevel(file_config.level)
-#             handler.setFormatter(formatter)
-#             file_handlers[name] = handler
-
-#     # Configure root logger
-#     logging.root.setLevel(config.root_level)
-
-#     # Add main app and error handlers to root by default
-#     if "app" in file_handlers:
-#         logging.root.addHandler(file_handlers["app"])
-#     if "errors" in file_handlers:
-#         logging.root.addHandler(file_handlers["errors"])
-    
-#     # Configure specific loggers
-#     for name, logger_config in config.loggers.items():
-#         if logger_config.enabled:
-#             logger = logging.getLogger(logger_config.name)
-#             logger.setLevel(logger_config.level)
-#             logger.propagate = logger_config.propagate
-
-#             # Add specified file handlers to this logger
-#             for file_name in logger_config.log_files:
-#                 if file_name in file_handlers:
-#                     logger.addHandler(file_handlers[file_name])
-    
-#     # Configure external library loggers
-#     for logger_name, level in config.external_loggers.items():
-#         logging.getLogger(logger_name).setLevel(level)
-
-#     # 🆕 NEW: Enable auto-instrumentation
-#     if config.auto_instrument:
-#         from .auto import enable_auto_instrumentation
-#         enable_auto_instrumentation(config)
-
-#     # Store the config in the module-level variable
-#     _current_config = config
-
-#     return config
 
 # Helper function to get logger (optional, but clean)
 def get_logger(name: str | None = None):
