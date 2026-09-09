@@ -5,20 +5,21 @@ Sherlock AI - Your AI assistant package
 __version__ = "1.14.9"
 
 # Import main components for easy access
-from .logging_setup import get_logger, get_logging_stats, get_current_config, SherlockAI
-from .config import LoggingConfig, LogFileConfig, LoggerConfig
-from .utils import set_request_id, get_request_id, clear_request_id
+from .analysis import CodeAnalyzer, hardcoded_value_detector
+from .auto import enable_auto_instrumentation
+from .config import LogFileConfig, LoggerConfig, LoggingConfig
+from .logging_setup import SherlockAI, get_current_config, get_logger, get_logging_stats
 from .monitoring import (
+    MemoryTracker,
+    PerformanceTimer,
+    ResourceMonitor,
+    ResourceTracker,
+    log_performance,
     monitor_memory,
     monitor_resources,
-    MemoryTracker,
-    ResourceTracker,
-    ResourceMonitor,
-    log_performance,
-    PerformanceTimer,
 )
-from .analysis import hardcoded_value_detector, CodeAnalyzer
-from .auto import enable_auto_instrumentation
+from .utils import clear_request_id, get_request_id, set_request_id
+
 
 # ✅ Logger name constants 
 class LoggerNames:
@@ -46,44 +47,37 @@ def list_available_loggers():
     ]
 
 __all__ = [
-    # Performance Logging
-    "log_performance", 
-    "PerformanceTimer",
-
-    # Memory and Resource Monitoring
-    "monitor_memory",
-    "monitor_resources",
-    "MemoryTracker",
-    "ResourceTracker",
-    "ResourceMonitor",
-
-    # Logging Configuration
-    "SherlockAI",
-    # "sherlock_ai",
-    "get_logger",
-    "get_logging_stats",
-    "get_current_config",
-    "LoggingConfig",
+    "CodeAnalyzer",
     # "LoggingPresets",
     "LogFileConfig",
     "LoggerConfig",
-
-    # Request ID
-    "set_request_id",
-    "get_request_id",
-    "clear_request_id",
-    
     # Logger utilities
     "LoggerNames",
-    "list_available_loggers",
-
-    # Auto-instrumentation
-    "enable_auto_instrumentation",
-
-    # Analysis
-    "hardcoded_value_detector",
-    "CodeAnalyzer",
-
+    "LoggingConfig",
+    "MemoryTracker",
+    "PerformanceTimer",
+    "ResourceMonitor",
+    "ResourceTracker",
+    # Logging Configuration
+    "SherlockAI",
     # Package info
     "__version__",
+    "clear_request_id",
+    # Auto-instrumentation
+    "enable_auto_instrumentation",
+    "get_current_config",
+    # "sherlock_ai",
+    "get_logger",
+    "get_logging_stats",
+    "get_request_id",
+    # Analysis
+    "hardcoded_value_detector",
+    "list_available_loggers",
+    # Performance Logging
+    "log_performance",
+    # Memory and Resource Monitoring
+    "monitor_memory",
+    "monitor_resources",
+    # Request ID
+    "set_request_id",
 ]

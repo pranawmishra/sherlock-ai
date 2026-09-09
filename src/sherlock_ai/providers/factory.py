@@ -1,16 +1,18 @@
 """
 LLM provider factory
 """
+from __future__ import annotations
 
-from sherlock_ai.config.settings import settings
 import logging
 import warnings
-from typing import Optional
+
+from sherlock_ai.config.settings import settings
+
 from .base import LLMProvider
 
 logger = logging.getLogger("LLMProviderLogger")
 
-_provider_instance: Optional[LLMProvider] = None
+_provider_instance: LLMProvider | None = None
 
 def get_provider() -> LLMProvider:
     """

@@ -1,10 +1,11 @@
-from contextvars import ContextVar
+from __future__ import annotations
+
 import uuid
-from typing import Optional
+from contextvars import ContextVar
 
 request_id_var: ContextVar[str] = ContextVar("request_id", default="")
 
-def set_request_id(req_id: Optional[str] = None) -> str:
+def set_request_id(req_id: str | None = None) -> str:
     """
     Set request ID for current context
     Args:

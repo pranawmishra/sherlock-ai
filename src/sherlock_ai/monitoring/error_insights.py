@@ -1,15 +1,19 @@
+from __future__ import annotations
+
+import asyncio
 import functools
+import logging
+
 # import weakref
 import sys
 import traceback
-# import inspect
-from typing import Callable, TypeVar, Any
-from typing import Union
-from .utils import generate_error_insights
-import logging
-import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from ..storage import MongoManager#, api_client
+
+# import inspect
+from typing import Any, Callable, ClassVar, TypeVar
+
+from ..storage import MongoManager  #, api_client
+from .utils import generate_error_insights
 
 # Type variable for better type hints
 F = TypeVar("F", bound=Callable[..., Any])
@@ -40,7 +44,7 @@ def _run_analysis_and_save(func_name: str, error_message: str, stack: str) -> No
     logger.info(probable_cause)
 
 
-def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
+def sherlock_error_handler(func: F = None) -> F | Callable[[F], F]:
     def decorator(f: F) -> F:
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
@@ -55,9 +59,8 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 stack = traceback.format_exc()
 
                 # This logs at ERROR level → root logger → writes to errors.json automatically
-                logging.getLogger().error(
-                    f"Unhandled exception in {f.__name__}: {error_message}",
-                    exc_info=True
+                logging.getLogger().exception(
+                    f"Unhandled exception in {f.__name__}: {error_message}"
                 )
 
                 # C-4 FIX: Run the blocking LLM call + MongoDB save in a thread pool
@@ -86,9 +89,8 @@ def sherlock_error_handler(func: F = None) -> Union[F, Callable[[F], F]]:
                 stack = traceback.format_exc()
 
                 # This logs at ERROR level → root logger → writes to errors.json automatically
-                logging.getLogger().error(
-                    f"Unhandled exception in {f.__name__}: {error_message}",
-                    exc_info=True
+                logging.getLogger().exception(
+                    f"Unhandled exception in {f.__name__}: {error_message}"
                 )
 
                 # C-4 FIX: Fire-and-forget the LLM + MongoDB work to background thread.
@@ -112,7 +114,7 @@ class SherlockErrorCaptureHandler(logging.Handler):
     Intercept ERROR-level log records and capture the active exception
     from sys.exc_info() - works even when the user doesn't re-raise
     """
-    _captured_ids : set = set()
+    _captured_ids: ClassVar[set] = set()
 
     def __init__(self, level=logging.ERROR):
         super().__init__(level)

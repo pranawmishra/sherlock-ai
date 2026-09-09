@@ -1,9 +1,10 @@
 """
 Data classes for resource and memory snapshots
 """
+from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
+
 
 @dataclass
 class ResourceSnapshot:
@@ -28,4 +29,4 @@ class MemorySnapshot:
     timestamp: float
     current_size: int # Current memory usage in bytes
     peak_size: int # Peak memory usage in bytes
-    traced_memory: Tuple[int, int] # (current, peak) from tracemalloc
+    traced_memory: tuple[int, int] # (current, peak) from tracemalloc

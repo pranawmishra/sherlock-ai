@@ -1,12 +1,16 @@
 """
 Groq LLM provider implementation
 """
+from __future__ import annotations
+
+import logging
+import warnings
+from typing import Any
 
 from groq import Groq
+
 from sherlock_ai.config.settings import settings
-import warnings
-import logging
-from typing import Optional, List, Dict, Any
+
 from .base import LLMProvider
 
 logger = logging.getLogger("LLMProviderLogger")
@@ -15,7 +19,7 @@ class GroqProvider(LLMProvider):
     # Centralized model configuration
     DEFAULT_MODEL = "openai/gpt-oss-20b"
     ANALYSIS_MODEL = "openai/gpt-oss-20b"  # For code analysis/constant naming
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         """
         api_key: Groq API key (optional). 
         If not provided, LLM-powered features will be disabled.
@@ -58,10 +62,10 @@ class GroqProvider(LLMProvider):
 
     def chat_completion(
         self, 
-        messages: List[Dict[str, Any]],
-        model: Optional[str] = None,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
         **kwargs
-    ) -> Optional[str]:
+    ) -> str | None:
         if not self._enabled:
             return None
 
@@ -72,6 +76,6 @@ class GroqProvider(LLMProvider):
                 **kwargs
             )
             return response.choices[0].message.content
-        except Exception as e:
+        except (ConnectionError, TimeoutError, ValueError, RuntimeError) as e:
             logger.error(f"Error in Groq chat completion: {e}")
             return None

@@ -1,12 +1,15 @@
-from dataclasses import dataclass, field
-from typing import Union, List, Dict
+from __future__ import annotations
+
 import logging
 import os
+from dataclasses import dataclass, field
+
+
 @dataclass
 class LogFileConfig:
     """Configuration for individual log files"""
     filename: str
-    level: Union[str, int] = logging.INFO
+    level: str | int = logging.INFO
     max_bytes: int = 10 * 1024 * 1024  # 10MB
     backup_count: int = 5
     encoding: str = "utf-8"
@@ -16,8 +19,8 @@ class LogFileConfig:
 class LoggerConfig:
     """Configuration for individual loggers"""
     name: str
-    level: Union[str, int] = logging.INFO
-    log_files: List[str] = field(default_factory=list)  # Which log files this logger writes to
+    level: str | int = logging.INFO
+    log_files: list[str] = field(default_factory=list)  # Which log files this logger writes to
     propagate: bool = True
     enabled: bool = True
 
@@ -27,8 +30,8 @@ class LoggingConfig:
 
     auto_instrument: bool = True
     auto_trace_functions: bool = False
-    auto_frameworks: List[str] = field(default_factory=lambda: ["fastapi"])
-    auto_exclude_modules: List[str] = field(default_factory=lambda: ["sys", "os", "logging"])
+    auto_frameworks: list[str] = field(default_factory=lambda: ["fastapi"])
+    auto_exclude_modules: list[str] = field(default_factory=lambda: ["sys", "os", "logging"])
     auto_min_duration: float = 0.0  # Only auto-log functions taking longer than this
     monitor_resources: bool = False
     monitor_memory: bool = False
@@ -45,19 +48,19 @@ class LoggingConfig:
     
     # Console settings
     console_enabled: bool = True
-    console_level: Union[str, int] = logging.INFO
+    console_level: str | int = logging.INFO
     
     # Root logger settings
-    root_level: Union[str, int] = logging.INFO
+    root_level: str | int = logging.INFO
     
     # Log files configuration
-    log_files: Dict[str, LogFileConfig] = field(default_factory=dict)
+    log_files: dict[str, LogFileConfig] = field(default_factory=dict)
     
     # Logger configuration
-    loggers: Dict[str, LoggerConfig] = field(default_factory=dict)
+    loggers: dict[str, LoggerConfig] = field(default_factory=dict)
     
     # External library log levels
-    external_loggers: Dict[str, Union[str, int]] = field(default_factory=dict)
+    external_loggers: dict[str, str | int] = field(default_factory=dict)
 
     def __post_init__(self):
         """Set up default configuration if not provided"""
@@ -86,7 +89,7 @@ class LoggingConfig:
                 # else:
                     # config.filename = f"{self.logs_dir}/{config.filename}"
 
-    def _get_default_log_files(self) -> Dict[str, LogFileConfig]:
+    def _get_default_log_files(self) -> dict[str, LogFileConfig]:
         """Default log files configuration"""
 
         # Choose file extension based on format type
@@ -109,7 +112,7 @@ class LoggingConfig:
 
         return files
 
-    def _get_default_loggers(self) -> Dict[str, LoggerConfig]:
+    def _get_default_loggers(self) -> dict[str, LoggerConfig]:
         """Default loggers configuration"""
         loggers = {
             # "api": LoggerConfig("ApiLogger", log_files=["api"]),
@@ -127,7 +130,7 @@ class LoggingConfig:
         
         return loggers
 
-    def _get_default_external_loggers(self) -> Dict[str, Union[str, int]]:
+    def _get_default_external_loggers(self) -> dict[str, str | int]:
         """Default external library log levels"""
         return {
             "uvicorn": logging.INFO,

@@ -10,11 +10,11 @@ INJEST_LOGS_ENDPOINT = "injest-error-insights"
 INJEST_PERFORMANCE_INSIGHTS_ENDPOINT = "injest-performance-insights"
 
 __all__ = [
+    "INJEST_LOGS_ENDPOINT",
+    "INJEST_PERFORMANCE_INSIGHTS_ENDPOINT",
+    # "LoggingPresets",
+    "SHERLOCK_AI_API_BASE_URL",
     "LogFileConfig",
     "LoggerConfig",
     "LoggingConfig",
-    # "LoggingPresets",
-    "SHERLOCK_AI_API_BASE_URL",
-    "INJEST_LOGS_ENDPOINT",
-    "INJEST_PERFORMANCE_INSIGHTS_ENDPOINT",
 ]

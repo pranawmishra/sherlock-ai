@@ -5,6 +5,7 @@ Auto-instrumentation package for Sherlock AI
 from .framework_patcher import patch_frameworks
 from .function_tracer import FunctionTracer
 
+
 def enable_auto_instrumentation(config):
     """Enable automatic instrumentation based on configuration"""
     if config.auto_instrument:

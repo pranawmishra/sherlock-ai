@@ -1,12 +1,16 @@
 """
 Azure OpenAI LLM provider implementation
 """
+from __future__ import annotations
+
+import logging
+import warnings
+from typing import Any
 
 from openai import AzureOpenAI
+
 from sherlock_ai.config.settings import settings
-import warnings
-import logging
-from typing import Optional, List, Dict, Any
+
 from .base import LLMProvider
 
 logger = logging.getLogger("LLMProviderLogger")
@@ -16,10 +20,10 @@ class AzureOpenAIProvider(LLMProvider):
     
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        endpoint: Optional[str] = None,
-        api_version: Optional[str] = None,
-        deployment_name: Optional[str] = None
+        api_key: str | None = None,
+        endpoint: str | None = None,
+        api_version: str | None = None,
+        deployment_name: str | None = None
     ):
         self._api_key = api_key or settings.azure_openai_api_key
         self._endpoint = endpoint or settings.azure_openai_endpoint
@@ -71,10 +75,10 @@ class AzureOpenAIProvider(LLMProvider):
     
     def chat_completion(
         self, 
-        messages: List[Dict[str, Any]], 
-        model: Optional[str] = None,
+        messages: list[dict[str, Any]], 
+        model: str | None = None,
         **kwargs
-    ) -> Optional[str]:
+    ) -> str | None:
         if not self._enabled:
             return None
         
@@ -85,6 +89,6 @@ class AzureOpenAIProvider(LLMProvider):
                 **kwargs
             )
             return response.choices[0].message.content
-        except Exception as e:
+        except (ConnectionError, TimeoutError, ValueError, RuntimeError) as e:
             logger.error(f"Azure OpenAI API error: {e}")
             return None

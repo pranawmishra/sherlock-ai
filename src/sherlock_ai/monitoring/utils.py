@@ -1,20 +1,18 @@
 """
 Utility functions for monitoring
 """
+from __future__ import annotations
 
-import logging
-from typing import Optional
-import os
 import ast
 import inspect
+import logging
 import textwrap
 from types import FunctionType
-from typing import Dict, Set
 
-from .snapshots import ResourceSnapshot, MemorySnapshot
-from .resource_monitor import ResourceMonitor
 # from ..storage import GroqManager
 from ..providers import get_provider
+from .resource_monitor import ResourceMonitor
+from .snapshots import MemorySnapshot, ResourceSnapshot
 
 logger = logging.getLogger("MonitoringLogger")
 
@@ -24,7 +22,7 @@ llm_provider = get_provider()
 
 # Helper functions for logging
 def log_memory_usage(function_name: str, start_memory: MemorySnapshot, end_memory: MemorySnapshot,
-                     execution_time: float, success: bool, log_level: str, error: str = None):
+                     execution_time: float, success: bool, log_level: str, error: str | None = None):
     """Log memory usage information"""
     status = "SUCCESS" if success else "ERROR"
     
@@ -51,9 +49,9 @@ def log_memory_usage(function_name: str, start_memory: MemorySnapshot, end_memor
     log_method(log_msg)
 
 
-def log_resource_usage(function_name: str, start_resources: Optional[ResourceSnapshot], 
-                       end_resources: Optional[ResourceSnapshot], execution_time: float,
-                       success: bool, log_level: str, include_io: bool, include_network: bool, error: str = None):
+def log_resource_usage(function_name: str, start_resources: ResourceSnapshot | None, 
+                       end_resources: ResourceSnapshot | None, execution_time: float,
+                       success: bool, log_level: str, include_io: bool, include_network: bool, error: str | None = None):
     """Log comprehensive resource usage information"""
     status = "SUCCESS" if success else "ERROR"
     
@@ -139,7 +137,7 @@ def generate_performance_insights(function_name: str, args: list, kwargs: dict, 
 class FunctionSource:
 
     @staticmethod
-    def _get_called_functions_from_source(source: str) -> Set[str]:
+    def _get_called_functions_from_source(source: str) -> set[str]:
         tree = ast.parse(source)
         return {
             node.func.id
@@ -160,8 +158,8 @@ class FunctionSource:
     @staticmethod
     def _extract_user_function_sources_only(
         func: FunctionType,
-        exclude_patterns: Set[str] = None
-    ) -> Dict[str, str]:
+        exclude_patterns: set[str] | None = None
+    ) -> dict[str, str]:
         """
         Extract function sources but exclude decorator and monitoring functions(internal functions).
         Only gets the target function and its called functions, excluding sherlock_ai decorators.
@@ -219,7 +217,7 @@ class FunctionSource:
                     obj = FunctionSource._get_function_object_from_scope(current_func, called_name)
                     if isinstance(obj, FunctionType):
                         _recursive_extract(obj)
-            except Exception as e:
+            except (TypeError, OSError, AttributeError) as e:
                 print(f"Skipped {func_name}: {e}")
         
         # _recursive_extract(original_func)
@@ -230,8 +228,8 @@ class FunctionSource:
     @staticmethod
     def _extract_all_function_sources_recursive(
         func: FunctionType,
-        seen: Set[str] = None
-    ) -> Dict[str, str]:
+        seen: set[str] | None = None
+    ) -> dict[str, str]:
         
         if seen is None:
             seen = set()
@@ -264,7 +262,7 @@ class FunctionSource:
                     if isinstance(obj, FunctionType):
                         _recursive_extract(obj)  # Recursive call
                         
-            except Exception as e:
+            except (TypeError, OSError, AttributeError) as e:
                 print(f"Skipped {func_name}: {e}")
         
         _recursive_extract(original_func)

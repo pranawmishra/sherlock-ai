@@ -1,7 +1,8 @@
 import ast
+import logging
 import os
 import re
-import logging
+
 from ..storage import GroqManager
 
 # Set up logging for debugging
@@ -39,7 +40,7 @@ class CodeAnalyzer:
         """
         try:
             tree = ast.parse(source_code)
-            logger.debug(f"Successfully parsed source code")
+            logger.debug("Successfully parsed source code")
         except SyntaxError as e:
             logger.error(f"Syntax error in source code: {e}")
             return []
@@ -113,7 +114,7 @@ class CodeAnalyzer:
                 if llm_name:
                     logger.info(f"LLM suggested constant name: {llm_name} for value: {value} (type: {value_type})")
                     return llm_name
-            except Exception as e:
+            except (ConnectionError, TimeoutError, ValueError, RuntimeError) as e:
                 logger.warning(f"LLM failed: {e}. Falling back to heuristic name for value: {value} (type: {value_type}).")
         
         heuristic = heuristic_name(value, value_type)
@@ -156,7 +157,7 @@ Return only the suggested constant name, nothing else.
                 return response_text
             logger.warning(f"Invalid LLM response: {response_text}")
             return None
-        except Exception:
+        except (ConnectionError, TimeoutError, ValueError, RuntimeError, KeyError, IndexError):
             return None
 
     def append_to_constants_file(self, constant_name, value):
@@ -271,15 +272,15 @@ Return only the suggested constant name, nothing else.
             import astor
             modified_code = astor.to_source(new_tree)
             logger.debug(f"Successfully converted AST to source for {main_file_path}")
-        except Exception as e:
+        except (ImportError, SyntaxError, ValueError, TypeError) as e:
             logger.error(f"Failed to convert AST to source for {main_file_path}: {e}")
             return source_code
         
         # Add or update import statement
-        constant_names = sorted(set(
+        constant_names = sorted({
             constant_name for _, func_replacements in replacements
             for _, constant_name, _ in func_replacements
-        ))
+        })
         if constant_names:
             import_statement = f"from constants import {', '.join(constant_names)}\n"
             # Remove any existing 'from constants import' line to avoid duplicates

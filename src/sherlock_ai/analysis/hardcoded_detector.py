@@ -1,11 +1,14 @@
-import inspect
-import functools
-import warnings
-import textwrap
-from sherlock_ai.analysis.code_analyzer import CodeAnalyzer
-import logging
+from __future__ import annotations
+
 import ast
+import functools
+import inspect
+import logging
 import os
+import textwrap
+import warnings
+
+from sherlock_ai.analysis.code_analyzer import CodeAnalyzer
 
 logger = logging.getLogger("MonitoringLogger")
 
@@ -37,7 +40,7 @@ def hardcoded_value_detector(func=None, *, analyzer=None):
 
             # Determine if the function is async
             is_async = inspect.iscoroutinefunction(func) or (
-                hasattr(func, '__call__') and inspect.iscoroutinefunction(getattr(func, '__call__', None))
+                callable(func) and inspect.iscoroutinefunction(func.__call__)
             )
             logger.debug(f"Function {func.__name__} is async: {is_async}")
 
@@ -48,16 +51,16 @@ def hardcoded_value_detector(func=None, *, analyzer=None):
                     logger.error(f"File {main_file_path} does not exist or is inaccessible")
                     return await func(*args, **kwargs) if is_async else func(*args, **kwargs)
                 logger.debug(f"Function file path: {main_file_path}")
-            except Exception as e:
+            except (TypeError, OSError) as e:
                 logger.error(f"Failed to get file path for {func.__name__}: {e}")
                 return await func(*args, **kwargs) if is_async else func(*args, **kwargs)
 
             # Read the entire file source once
             try:
-                with open(main_file_path, 'r') as f:
+                with open(main_file_path, 'r') as f:  # noqa: ASYNC230
                     file_source = f.read()
                 logger.debug(f"Current file content (first 500 chars):\n{file_source[:500]}")
-            except Exception as e:
+            except OSError as e:
                 logger.error(f"Failed to read {main_file_path}: {e}")
                 raise
 
@@ -147,25 +150,25 @@ def hardcoded_value_detector(func=None, *, analyzer=None):
                         func_replacements.append((value, constant_name, node))
 
                     all_replacements.append((func_name, func_replacements))
-                except Exception as e:
+                except (TypeError, OSError, SyntaxError, ValueError) as e:
                     logger.error(f"Failed to process function {func_name}: {e}")
                     continue
 
             # Modify the source file with all replacements
             if all_replacements:
                 try:
-                    with open(main_file_path, 'r') as f:
+                    with open(main_file_path, 'r') as f:  # noqa: ASYNC230
                         current_file_source = f.read()
                     logger.debug(f"About to modify {main_file_path} with replacements: {all_replacements}")
                     modified_code = code_analyzer.modify_function_code(current_file_source, all_replacements, main_file_path)
                     try:
-                        with open(main_file_path, 'w') as f:
+                        with open(main_file_path, 'w') as f:  # noqa: ASYNC230
                             f.write(modified_code)
                         logger.info(f"Successfully modified {main_file_path} with replacements for {', '.join([r[0] for r in all_replacements])}")
-                    except Exception as e:
+                    except OSError as e:
                         logger.error(f"Failed to write modified code to {main_file_path}: {e}")
                         raise
-                except Exception as e:
+                except OSError as e:
                     logger.error(f"Failed to modify {main_file_path}: {e}")
                     raise
 

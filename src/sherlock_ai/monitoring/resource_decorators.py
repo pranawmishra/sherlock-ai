@@ -1,14 +1,14 @@
 """
 Monitoring decorators for functions
 """
+from __future__ import annotations
 
-import time
-import functools
 import asyncio
+import functools
+import time
 import tracemalloc
-from typing import Any, Callable, TypeVar, Union
+from typing import Any, Callable, TypeVar
 
-from ..utils.request_context import get_request_id
 from .resource_monitor import ResourceMonitor
 from .utils import log_memory_usage, log_resource_usage
 
@@ -21,7 +21,7 @@ def monitor_memory(
     min_duration: float = 0.0,
     log_level: str = "INFO",
     trace_malloc: bool = True
-) -> Union[F, Callable[[F], F]]:
+) -> F | Callable[[F], F]:
     """
     Decorator to monitor memory usage during function execution
     
@@ -118,7 +118,7 @@ def monitor_resources(
     log_level: str = "INFO",
     include_io: bool = True,
     include_network: bool = False
-) -> Union[F, Callable[[F], F]]:
+) -> F | Callable[[F], F]:
     """
     Decorator to monitor comprehensive resource usage during function execution
     

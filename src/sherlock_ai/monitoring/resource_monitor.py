@@ -1,11 +1,12 @@
 """
 Resource monitoring utilities
 """
+from __future__ import annotations
 
+import logging
 import time
 import tracemalloc
-import logging
-from typing import Optional, Dict, Any
+from typing import Any
 
 try:
     import psutil
@@ -13,7 +14,7 @@ except ImportError:
     psutil = None
     print("Warning: psutil is not installed. Some monitoring features will be unavailable.")
 
-from .snapshots import ResourceSnapshot, MemorySnapshot
+from .snapshots import MemorySnapshot, ResourceSnapshot
 
 logger = logging.getLogger("MonitoringLogger")
 
@@ -21,7 +22,7 @@ class ResourceMonitor:
     """Utility class for capturing resource snapshots"""
 
     @staticmethod
-    def get_process() -> Optional[psutil.Process]:
+    def get_process() -> psutil.Process | None:
         """Get the current process object"""
         if psutil is None:
             return None
@@ -31,7 +32,7 @@ class ResourceMonitor:
             return None
         
     @staticmethod
-    def capture_resources() -> Optional[ResourceSnapshot]:
+    def capture_resources() -> ResourceSnapshot | None:
         """Capture current resource usage snapshot"""
         process = ResourceMonitor.get_process()
         if process is None:
@@ -132,7 +133,7 @@ class ResourceMonitor:
         return f"{bytes_val:.2f}PB"
     
     @staticmethod
-    def calculate_resource_diff(start: ResourceSnapshot, end: ResourceSnapshot) -> Dict[str, Any]:
+    def calculate_resource_diff(start: ResourceSnapshot, end: ResourceSnapshot) -> dict[str, Any]:
         """Calculate differences between two resource snapshots"""
         if start is None or end is None:
             return {}

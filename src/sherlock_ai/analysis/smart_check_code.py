@@ -1,10 +1,11 @@
-import inspect
-import functools
-from typing import Callable, TypeVar, Any, Union
-from groq import Groq
-import os
-import logging
+from __future__ import annotations
+
 import asyncio
+import functools
+import inspect
+import logging
+from typing import Any, Callable, TypeVar
+
 from ..storage import GroqManager
 
 # Type variable for better type hints
@@ -16,7 +17,7 @@ logger = logging.getLogger("MonitoringLogger")
 # Initialize GroqManager once at module level
 groq_manager = GroqManager()
 
-def smart_check(func: F = None) -> Union[F, Callable[[F], F]]:
+def smart_check(func: F = None) -> F | Callable[[F], F]:
     def decorator(f: F) -> F:
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
@@ -38,7 +39,7 @@ def smart_check(func: F = None) -> Union[F, Callable[[F], F]]:
                 # Print the LLM's suggestions
                 suggestions = response.choices[0].message.content
                 logger.info(f"LLM Suggestions: {suggestions}")
-            except Exception as e:
+            except (ConnectionError, TimeoutError, ValueError, RuntimeError) as e:
                 logger.error(f"Error in LLM call for code analysis: {e}")
 
             # Continue with the original function
@@ -65,7 +66,7 @@ def smart_check(func: F = None) -> Union[F, Callable[[F], F]]:
                 # Print the LLM's suggestions - FIXED logging
                 suggestions = response.choices[0].message.content
                 logger.info(f"LLM Suggestions:{suggestions}")
-            except Exception as e:
+            except (ConnectionError, TimeoutError, ValueError, RuntimeError) as e:
                 logger.error(f"Error in LLM call for code analysis: {e}")
 
             # Continue with the original function - NO await for sync

@@ -1,9 +1,12 @@
 # app > utils > performance.py
-import time
-import functools
+from __future__ import annotations
+
 import asyncio
+import functools
 import logging
-from typing import Any, Callable, TypeVar, Union
+import time
+from typing import Any, Callable, TypeVar
+
 from sherlock_ai.utils.request_context import get_request_id
 
 # Create a logger specifically for performance metrics
@@ -19,7 +22,7 @@ def log_performance(
     min_duration: float = 0.0,
     include_args: bool = True,
     log_level: str = "INFO"
-) -> Union[F, Callable[[F], F]]:
+) -> F | Callable[[F], F]:
     """
     Decorator to log function execution time
 
@@ -43,7 +46,7 @@ def log_performance(
         async def async_wrapper(*args, **kwargs):
             start_time = time.time()
             function_name = f"{f.__module__}.{f.__name__}"
-            request_id = get_request_id()
+            get_request_id()
 
             # Log function arguments if requested
             args_info = ""
@@ -68,7 +71,7 @@ def log_performance(
             except Exception as e:
                 execution_time = time.time() - start_time
                 logger.error(
-                    f"PERFORMANCE | {function_name} | ERROR | {execution_time:.3f}s | {str(e)}{args_info}"
+                    f"PERFORMANCE | {function_name} | ERROR | {execution_time:.3f}s | {e!s}{args_info}"
                 )
                 raise
 
@@ -76,7 +79,7 @@ def log_performance(
         def sync_wrapper(*args, **kwargs):
             start_time = time.time()
             function_name = f"{f.__module__}.{f.__name__}"
-            request_id = get_request_id()
+            get_request_id()
 
             # Log function arguments if requested
             args_info = ""
@@ -101,7 +104,7 @@ def log_performance(
             except Exception as e:
                 execution_time = time.time() - start_time
                 logger.error(
-                    f"PERFORMANCE | {function_name} | ERROR | {execution_time:.3f}s | {str(e)}{args_info}"
+                    f"PERFORMANCE | {function_name} | ERROR | {execution_time:.3f}s | {e!s}{args_info}"
                 )
                 raise
 
@@ -115,7 +118,7 @@ def log_performance(
         return decorator(func)
 
 
-def log_execution_time(name: str, start_time: float, success: bool = True, error: str = None):
+def log_execution_time(name: str, start_time: float, success: bool = True, error: str | None = None):
     """
     Manual function to log execution time for code blocks
 
@@ -162,5 +165,5 @@ class PerformanceTimer:
             if exc_type is None:
                 logger.info(f"PERFORMANCE | {self.name} | SUCCESS | {execution_time:.3f}s")
             else:
-                logger.error(f"PERFORMANCE | {self.name} | ERROR | {execution_time:.3f}s | {str(exc_val)}")
+                logger.error(f"PERFORMANCE | {self.name} | ERROR | {execution_time:.3f}s | {exc_val!s}")
         return False  # Don’t suppress exceptions

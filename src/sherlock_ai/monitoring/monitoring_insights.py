@@ -3,15 +3,19 @@ This module contains the logic for generating insights from the monitoring data.
 """
 # TODO: Add a way to get only the user called function and injest in the  llm call to generate insights instead of the whole function source which include the sherlock_ai code
 
-from typing import TypeVar, Callable, Any, Union
-import functools
-from ..storage import MongoManager
+from __future__ import annotations
+
 import asyncio
+import functools
+import logging
 import time
-from .utils import generate_performance_insights, FunctionSource
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
-import logging
+from typing import Any, Callable, TypeVar
+
+from ..storage import MongoManager
+from .utils import FunctionSource, generate_performance_insights
+
 # from ..storage import api_client
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -49,7 +53,7 @@ def sherlock_performance_insights(
     latency: int = 5,
     include_args: bool = True,
     log_level: str = "INFO"
-) -> Union[F, Callable[[F], F]]:
+) -> F | Callable[[F], F]:
     """
     Decorator to generate performance insights.
 

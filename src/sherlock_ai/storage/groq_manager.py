@@ -1,6 +1,9 @@
-from groq import Groq
-from sherlock_ai.config.settings import settings
 import warnings
+
+from groq import Groq
+
+from sherlock_ai.config.settings import settings
+
 
 class GroqManager:
     # Centralized model configuration

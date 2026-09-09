@@ -1,7 +1,10 @@
-from pymongo import MongoClient
-from sherlock_ai.config.settings import settings
-from typing import Literal
 import warnings
+from typing import Literal
+
+from pymongo import MongoClient
+
+from sherlock_ai.config.settings import settings
+
 
 class MongoManager:
     def __init__(self, mongo_uri=None):

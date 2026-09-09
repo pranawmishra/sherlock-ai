@@ -1,11 +1,13 @@
 """
 Function-level auto-tracing using sys.settrace
 """
+from __future__ import annotations
 
+import logging
 import sys
 import time
-import logging
-from typing import List, Dict, Any
+from typing import Any
+
 from ..utils import get_request_id
 
 logger = logging.getLogger("AutoInstrumentLogger")
@@ -13,10 +15,10 @@ logger = logging.getLogger("AutoInstrumentLogger")
 class FunctionTracer:
     """Automatic function tracing and monitoring"""
     
-    def __init__(self, exclude_modules: List[str] = None, min_duration: float = 0.0):
+    def __init__(self, exclude_modules: list[str] | None = None, min_duration: float = 0.0):
         self.exclude_modules = exclude_modules or []
         self.min_duration = min_duration
-        self.call_stack: Dict[str, Dict[str, Any]] = {}
+        self.call_stack: dict[str, dict[str, Any]] = {}
         self.active = False
         
     def start(self):
@@ -52,7 +54,7 @@ class FunctionTracer:
             elif event == 'exception':
                 self._handle_function_exception(full_name, arg)
                 
-        except Exception as e:
+        except (KeyError, ValueError, TypeError, AttributeError, RuntimeError) as e:
             # Don't let tracing break the application
             logger.error(f"Error in function tracer: {e}")
             

@@ -1,6 +1,12 @@
 import requests
+
+from sherlock_ai.config import (
+    INJEST_LOGS_ENDPOINT,
+    INJEST_PERFORMANCE_INSIGHTS_ENDPOINT,
+    SHERLOCK_AI_API_BASE_URL,
+)
 from sherlock_ai.config.settings import settings
-from sherlock_ai.config import SHERLOCK_AI_API_BASE_URL, INJEST_LOGS_ENDPOINT, INJEST_PERFORMANCE_INSIGHTS_ENDPOINT
+
 
 class ApiClient:
     def __init__(self):

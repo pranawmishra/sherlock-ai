@@ -5,7 +5,15 @@ Framework-specific auto-instrumentation patches
 # import functools
 # import importlib
 import sys
-from ..monitoring import monitor_memory, monitor_resources, sherlock_error_handler, log_performance, sherlock_performance_insights
+
+from ..monitoring import (
+    log_performance,
+    monitor_memory,
+    monitor_resources,
+    sherlock_error_handler,
+    sherlock_performance_insights,
+)
+
 
 def patch_frameworks(frameworks, config):
     """Patch specified frameworks for auto-instrumentation"""

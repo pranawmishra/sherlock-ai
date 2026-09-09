@@ -8,6 +8,7 @@ import tracemalloc
 from .resource_monitor import ResourceMonitor
 from .utils import log_memory_usage, log_resource_usage
 
+
 class MemoryTracker:
     """
     Context manager for tracking memory usage of code blocks

@@ -2,17 +2,20 @@
 # from dotenv import load_dotenv
 # load_dotenv()
 
-from typing import Optional, Dict, Any
+from __future__ import annotations
+
+import json
 import logging
 import logging.handlers
-import json
 import traceback
 from pathlib import Path
+from typing import Any
+
 from sherlock_ai.config.logging import LoggingConfig
 from sherlock_ai.utils import request_id_var
 
 # Add module-level variable to store current config
-_current_config: Optional[LoggingConfig] = None
+_current_config: LoggingConfig | None = None
 
 class RequestIdFormatter(logging.Formatter):
     """Custom formatter that includes request ID in log messages"""
@@ -57,9 +60,9 @@ class SherlockAI:
     """
     
     # Single instance for the application
-    _instance: Optional['SherlockAI'] = None
+    _instance: SherlockAI | None = None
     
-    def __init__(self, config: Optional[LoggingConfig] = None):
+    def __init__(self, config: LoggingConfig | None = None):
         """
         Initialize SherlockAI logging manager
         
@@ -68,8 +71,8 @@ class SherlockAI:
         """
         self.config = config or LoggingConfig()
         self.is_configured = False
-        self.handlers: Dict[str, logging.Handler] = {}
-        self.formatter: Optional[RequestIdFormatter] = None
+        self.handlers: dict[str, logging.Handler] = {}
+        self.formatter: RequestIdFormatter | None = None
         
     def setup(self) -> LoggingConfig:
         """
@@ -160,7 +163,7 @@ class SherlockAI:
     
     def _configure_loggers(self):
         """Configure specific loggers based on configuration"""
-        for name, logger_config in self.config.loggers.items():
+        for logger_config in self.config.loggers.values():
             if logger_config.enabled:
                 logger = logging.getLogger(logger_config.name)
                 logger.setLevel(logger_config.level)
@@ -195,7 +198,7 @@ class SherlockAI:
         logging.root.handlers.clear()
         self.is_configured = False
     
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get current logging statistics"""
         return {
             'is_configured': self.is_configured,
@@ -207,7 +210,7 @@ class SherlockAI:
         }
     
     @classmethod
-    def get_instance(cls) -> 'SherlockAI':
+    def get_instance(cls) -> SherlockAI:
         """Get or create the singleton instance"""
         if cls._instance is None:
             cls._instance = cls()
@@ -307,16 +310,16 @@ class SherlockAI:
 #     return config
 
 # Helper function to get logger (optional, but clean)
-def get_logger(name: str = None):
+def get_logger(name: str | None = None):
     """Get a logger. If no name provided, uses the caller's __name__."""
     return logging.getLogger(name) if name else logging.getLogger(__name__)
 
-def get_current_config() -> Optional[LoggingConfig]:
+def get_current_config() -> LoggingConfig | None:
     """Get the current logging configuration"""
     instance = SherlockAI.get_instance()
     return instance.config if instance.is_configured else None
 
-def get_logging_stats() -> Dict[str, Any]:
+def get_logging_stats() -> dict[str, Any]:
     """Get current logging statistics"""
     instance = SherlockAI.get_instance()
     return instance.get_stats()

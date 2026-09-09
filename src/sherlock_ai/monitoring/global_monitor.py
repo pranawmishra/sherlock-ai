@@ -1,9 +1,10 @@
-import functools
-from typing import Callable, TypeVar, Any, Union
+from __future__ import annotations
 
-from .resource_decorators import monitor_memory, monitor_resources
+from typing import Any, Callable, TypeVar
+
 from .error_insights import sherlock_error_handler
 from .performance import log_performance
+from .resource_decorators import monitor_memory, monitor_resources
 
 # Type variable for better type hints
 F = TypeVar("F", bound=Callable[..., Any])
@@ -34,9 +35,9 @@ def global_monitor(
     include_args: bool = True,
 
     # Global settings
-    global_min_duration: float = None,
-    global_log_level: str = None,
-) -> Union[F, Callable[[F], F]]:
+    global_min_duration: float | None = None,
+    global_log_level: str | None = None,
+) -> F | Callable[[F], F]:
     def decorator(f: F) -> F:
         # Apply global overrides if specified
         final_memory_min_duration = global_min_duration if global_min_duration is not None else memory_min_duration
@@ -91,11 +92,11 @@ def global_monitor(
         return decorator(func)
     
 # Convenience presets for common use cases
-def monitor_all(func: F = None, **kwargs) -> Union[F, Callable[[F], F]]:
+def monitor_all(func: F = None, **kwargs) -> F | Callable[[F], F]:
     """Convenience decorator that applies all monitoring with default settings"""
     return global_monitor(func, **kwargs)
 
-def monitor_critical(func: F = None, **kwargs) -> Union[F, Callable[[F], F]]:
+def monitor_critical(func: F = None, **kwargs) -> F | Callable[[F], F]:
     """Convenience decorator for critical functions with comprehensive monitoring"""
     defaults = {
         'memory': True,
@@ -112,7 +113,7 @@ def monitor_critical(func: F = None, **kwargs) -> Union[F, Callable[[F], F]]:
     defaults.update(kwargs)  # Allow overrides
     return global_monitor(func, **defaults)
 
-def monitor_performance_only(func: F = None, **kwargs) -> Union[F, Callable[[F], F]]:
+def monitor_performance_only(func: F = None, **kwargs) -> F | Callable[[F], F]:
     """Convenience decorator for performance monitoring only"""
     defaults = {
         'memory': False,
@@ -124,7 +125,7 @@ def monitor_performance_only(func: F = None, **kwargs) -> Union[F, Callable[[F],
     defaults.update(kwargs)  # Allow overrides
     return global_monitor(func, **defaults)
 
-def monitor_errors_only(func: F = None, **kwargs) -> Union[F, Callable[[F], F]]:
+def monitor_errors_only(func: F = None, **kwargs) -> F | Callable[[F], F]:
     """Convenience decorator for error handling only"""
     defaults = {
         'memory': False,
